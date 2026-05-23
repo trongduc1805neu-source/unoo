@@ -30,6 +30,17 @@ Dự án Uno có phong cách thiết kế hiện đại, cao cấp (Premium) k�
   - Nền chat kiểu Telegram: `.telegram-bg`
   - Bong bóng chat: `.chat-bubble-me`, `.chat-bubble-other`, `.chat-bubble-system`
   - Hiệu ứng phát sáng nền: `.ambient-orb`
+
+- **Chuẩn hóa Giao diện theo phong cách Telegram (Telegram UI Perfection)**:
+  - **Đuôi bong bóng chat (Bubble Tails)**: Bong bóng chat cần có phần đuôi nhọn nhô ra ở góc dưới để tạo cảm giác hội thoại sinh động. Bong bóng của mình (`.chat-bubble-me`) có đuôi bên phải, bong bóng người khác (`.chat-bubble-other`) có đuôi bên trái.
+  - **Nhóm tin nhắn liên tiếp (Message Grouping)**: Khi một người gửi nhiều tin nhắn liên tiếp trong thời gian ngắn:
+    - Chỉ hiển thị Avatar và Tên hiển thị ở tin nhắn đầu tiên của chuỗi.
+    - Chỉ hiển thị đuôi bong bóng chat ở tin nhắn cuối cùng của chuỗi. Các tin nhắn ở giữa sẽ được bo tròn đều tất cả các góc.
+    - Khoảng cách giữa các tin nhắn trong cùng một chuỗi phải thu hẹp lại (chỉ khoảng 2-4px).
+  - **Thời gian & Trạng thái đọc tin (Timestamp & Seen ticks)**: Mỗi bong bóng chat phải có thời gian gửi hiển thị nhỏ gọn ở góc dưới bên phải bên trong bong bóng. Tin nhắn của chính mình (`me`) cần hiển thị thêm dấu tích trạng thái (1 tích: đã gửi, 2 tích: đã đọc/xác nhận).
+  - **Hộp soạn thảo tin nhắn dạng viên thuốc (Floating Input Capsule)**: Thiết kế ô nhập tin nhắn dạng viên thuốc bo tròn mềm mại nổi lên trên nền chat, tích hợp nút Menu hành động (+ hoặc paperclip) bên trái, ô nhập liệu ở giữa và nút Gửi hình tròn nổi bật bên phải.
+  - **Tin nhắn Hệ thống (System Message styling)**: Hiển thị các tin nhắn hệ thống (quyết toán xong, kế hoạch mới, thông báo thành viên) ở chính giữa dòng chat với dạng bong bóng xám mờ bo tròn góc rộng mềm mại (`.chat-bubble-system`).
+
 - **Nguyên tắc thẩm mỹ**:
   - Không thiết kế giao diện thô sơ, cơ bản hoặc sử dụng màu sắc nguyên bản (như đỏ chót, xanh lá thuần). Hãy dùng các hệ màu HSL được cấu hình sẵn.
   - Sử dụng các hiệu ứng Hover và Micro-animations để tăng trải nghiệm người dùng.
