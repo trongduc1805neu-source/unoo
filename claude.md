@@ -120,6 +120,9 @@ Dự án Uno có phong cách thiết kế hiện đại, cao cấp (Premium) k�
 ### 4.5. Animations
 - Sử dụng thư viện `motion` (Framer Motion v12) cho các chuyển động mượt mà của thẻ, danh sách và chuyển trang.
 
+### 4.6. Tách biệt nội dung cấu hình & văn bản
+- **Quy tắc**: Di chuyển các nội dung có thể thay đổi hoặc chỉnh sửa (ví dụ: các chuỗi văn bản tĩnh, cấu hình hệ thống/game, prompt của AI, tham số cấu hình) ra một tệp riêng biệt để thuận tiện cho việc chỉnh sửa và bảo trì, tránh việc viết cứng (hardcode) trực tiếp trong các file component hay logic chính.
+
 ---
 
 ## 5. Quy Trình Sửa Đổi Code & Xác Minh

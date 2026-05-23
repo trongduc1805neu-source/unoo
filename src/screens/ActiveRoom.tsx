@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { UserProfile, RoomDetails, Screen } from '../types';
-import { ArrowLeft, Bell, Gear, Edit2, Trash2, Plus, Wallet, Info } from '../components/ui/Icons';
+import { ArrowLeft, Bell, Gear, Edit2, Trash2, Plus, Wallet, Info, LogOut, ExclamationCircle } from '../components/ui/Icons';
 import { firebaseService } from '../services/firebase';
 import HomeScreen from './HomeScreen';
 // Import other screens...
@@ -89,122 +89,101 @@ export default function ActiveRoom({ user, profile, roomDetails, roomId, onLeave
           >
             <ArrowLeft size={16} className="mr-0.5" aria-hidden="true" />
           </button>
-          <div className="hidden md:flex w-9 h-9 rounded-full bg-[var(--color-orange)] text-white items-center justify-center shadow-sm font-semibold shrink-0 select-none">
-            <span className="font-heading text-base leading-none">{roomDetails.metadata.name.substring(0, 1).toUpperCase()}</span>
-          </div>
-          <button 
-            type="button"
-            onClick={() => setShowRightSidebar(!showRightSidebar)}
-            className="flex flex-col text-left cursor-pointer select-none hover:opacity-90 focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none rounded-lg p-1 -m-1"
-            aria-label="Xem chi tiết nhóm, số dư và thành viên"
-          >
-            <h1 className="text-base font-heading font-bold text-[var(--color-foreground)] hover:text-[var(--color-orange)] transition-colors leading-tight">
+          
+          <div className="flex flex-col text-left select-none">
+            <h1 className="text-base font-heading font-bold text-[var(--color-foreground)] leading-tight">
               {roomDetails.metadata.name}
             </h1>
             <span className="text-[11px] text-[var(--color-muted-foreground)] font-semibold mt-0.5">
               {allMembersData.length} thành viên • Mã: {roomId}
             </span>
-          </button>
+          </div>
         </div>
+        
         <div className="flex gap-2 items-center">
-          {/* Quick Actions */}
-          <button 
-            type="button"
-            onClick={() => setCurrentScreen(Screen.ADD_EXPENSE)} 
-            className="w-9 h-9 rounded-full bg-[var(--color-orange-light)] text-[var(--color-orange)] hover:bg-[var(--color-orange)] hover:text-white hover:scale-105 active:scale-95 focus-visible:ring-2 focus-visible:ring-[var(--color-orange)] focus-visible:outline-none transition-all flex items-center justify-center cursor-pointer p-0"
-            title="Thêm chi tiêu"
-            aria-label="Thêm chi tiêu mới"
-          >
-            <Plus size={18} aria-hidden="true" />
-          </button>
-          
-          <button 
-            type="button"
-            onClick={() => setCurrentScreen(Screen.SETTLE_UP)} 
-            className="w-9 h-9 rounded-full bg-green-50 text-[var(--color-green-dark)] hover:bg-[var(--color-green)] hover:text-white hover:scale-105 active:scale-95 focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:outline-none transition-all flex items-center justify-center cursor-pointer p-0"
-            title="Quyết toán nợ nần"
-            aria-label="Quyết toán nợ nần trong nhóm"
-          >
-            <Wallet size={18} aria-hidden="true" />
-          </button>
-
-          <button 
-            type="button"
-            onClick={() => setShowRightSidebar(!showRightSidebar)} 
-            className={`w-9 h-9 rounded-full flex items-center justify-center hover:scale-105 active:scale-95 focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none transition-all cursor-pointer p-0 ${showRightSidebar ? 'bg-[var(--color-orange)] text-white shadow-sm' : 'bg-[var(--color-muted)] text-[var(--color-muted-foreground)] hover:bg-[var(--color-orange-light)] hover:text-[var(--color-orange)]'}`}
-            title="Xem số dư & thành viên"
-            aria-label="Xem số dư và thành viên trong nhóm"
-          >
-            <Info size={18} aria-hidden="true" />
-          </button>
-
-          {isOwner && (
+          <div className="relative">
             <button 
               type="button"
-              onClick={() => setIsApprovalsOpen(true)} 
-              className="relative w-9 h-9 rounded-full bg-[var(--color-muted)] border border-[var(--color-border)] flex items-center justify-center text-[var(--color-foreground)] shadow-sm hover:bg-[var(--color-border)] hover:scale-105 active:scale-95 focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none transition-all p-0"
-              aria-label="Xem các yêu cầu xin vào nhóm"
+              onClick={() => setIsSettingsOpen(!isSettingsOpen)} 
+              className={`w-9 h-9 rounded-full flex items-center justify-center hover:scale-105 active:scale-95 focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none transition-all cursor-pointer p-0 relative ${
+                isSettingsOpen || showRightSidebar 
+                  ? 'bg-[var(--color-accent)] text-white shadow-sm' 
+                  : 'bg-[var(--color-muted)] text-[var(--color-muted-foreground)] hover:bg-[var(--color-accent)]/10 hover:text-[var(--color-accent)]'
+              }`}
+              title="Thông tin & tùy chọn nhóm"
             >
-              <Bell size={16} aria-hidden="true" />
-              {requestsCount > 0 && (
+              <ExclamationCircle size={18} aria-hidden="true" />
+              {requestsCount > 0 && isOwner && (
                 <span className="absolute -top-1 -right-1 bg-red-500 text-white w-4.5 h-4.5 rounded-full flex items-center justify-center font-bold text-[9px] ring-2 ring-[var(--color-card-solid)] animate-bounce">
                   {requestsCount}
                 </span>
               )}
             </button>
-          )}
-          
-          <div className="relative">
-            <button 
-              type="button"
-              onClick={() => setIsSettingsOpen(!isSettingsOpen)} 
-              className="w-9 h-9 rounded-full bg-[var(--color-muted)] border border-[var(--color-border)] flex items-center justify-center text-[var(--color-foreground)] shadow-sm p-0 hover:bg-[var(--color-border)] focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none transition-all"
-              aria-label="Cài đặt nhóm"
-            >
-              <Gear size={16} aria-hidden="true" />
-            </button>
+            
             {isSettingsOpen && (
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setIsSettingsOpen(false)}></div>
-                <div className="absolute right-0 top-11 w-48 bg-[var(--color-card-solid)] border border-[var(--color-border)] rounded-xl shadow-lg z-50 overflow-hidden py-1">
+                <div className="absolute right-0 top-11 w-52 bg-[var(--color-card-solid)] border border-[var(--color-border)] rounded-2xl shadow-xl z-50 overflow-hidden py-2 flex flex-col gap-1 p-2">
+                  <button 
+                    type="button"
+                    onClick={() => { setIsSettingsOpen(false); setShowRightSidebar(!showRightSidebar); }} 
+                    className="w-full text-left px-3 py-2.5 rounded-xl hover:bg-[var(--color-accent)]/10 focus-visible:bg-[var(--color-accent)]/10 focus-visible:outline-none font-bold text-xs flex items-center gap-2.5 text-[var(--color-foreground)] transition-colors cursor-pointer"
+                  >
+                    <Info size={14} aria-hidden="true" /> {showRightSidebar ? "Đóng thông tin nhóm" : "Xem thông tin nhóm"}
+                  </button>
+
                   {isOwner && (
-                    <>
-                      <button 
-                        type="button"
-                        onClick={() => { setIsSettingsOpen(false); setTempRoomName(roomDetails.metadata.name || ''); setIsEditNameOpen(true); }} 
-                        className="w-full text-left px-4 py-3 hover:bg-[var(--color-muted)] focus-visible:bg-[var(--color-muted)] focus-visible:outline-none font-bold text-sm flex items-center gap-2 text-[var(--color-foreground)]"
-                      >
-                        <Edit2 size={16} aria-hidden="true" /> Sửa tên nhóm
-                      </button>
-                      <button 
-                        type="button"
-                        onClick={() => { setIsSettingsOpen(false); setRoomAction('DELETE'); }} 
-                        className="w-full text-left px-4 py-3 hover:bg-red-500/10 focus-visible:bg-red-500/10 focus-visible:outline-none text-red-500 font-bold text-sm flex items-center gap-2 border-t border-[var(--color-border)]"
-                      >
-                        <Trash2 size={16} aria-hidden="true" /> Xóa nhóm
-                      </button>
-                    </>
+                    <button 
+                      type="button"
+                      onClick={() => { setIsSettingsOpen(false); setTempRoomName(roomDetails.metadata.name || ''); setIsEditNameOpen(true); }} 
+                      className="w-full text-left px-3 py-2.5 rounded-xl hover:bg-[var(--color-accent)]/10 focus-visible:bg-[var(--color-accent)]/10 focus-visible:outline-none font-bold text-xs flex items-center gap-2.5 text-[var(--color-foreground)] transition-colors cursor-pointer"
+                    >
+                      <Edit2 size={14} aria-hidden="true" /> Đổi tên nhóm
+                    </button>
                   )}
+
+                  {isOwner && (
+                    <button 
+                      type="button"
+                      onClick={() => { setIsSettingsOpen(false); setIsApprovalsOpen(true); }} 
+                      className="w-full text-left px-3 py-2.5 rounded-xl hover:bg-[var(--color-accent)]/10 focus-visible:bg-[var(--color-accent)]/10 focus-visible:outline-none font-bold text-xs flex items-center gap-2.5 text-[var(--color-foreground)] transition-colors cursor-pointer relative"
+                    >
+                      <Bell size={14} aria-hidden="true" /> Duyệt thành viên mới
+                      {requestsCount > 0 && (
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 bg-red-500 text-white w-4.5 h-4.5 rounded-full flex items-center justify-center font-bold text-[9px]">
+                          {requestsCount}
+                        </span>
+                      )}
+                    </button>
+                  )}
+
                   <button 
                     type="button"
                     onClick={() => { setIsSettingsOpen(false); setRoomAction('LEAVE'); }} 
-                    className={`w-full text-left px-4 py-3 hover:bg-red-500/10 focus-visible:bg-red-500/10 focus-visible:outline-none text-red-500 font-bold text-sm flex items-center gap-2 ${isOwner ? 'border-t border-[var(--color-border)]' : ''}`}
+                    className="w-full text-left px-3 py-2.5 rounded-xl hover:bg-rose-500/10 focus-visible:bg-rose-500/10 focus-visible:outline-none text-red-500 font-bold text-xs flex items-center gap-2.5 border-t border-[var(--color-border)]/50 pt-2 cursor-pointer"
                   >
-                    <ArrowLeft size={16} aria-hidden="true" /> Rời nhóm
+                    <LogOut size={14} aria-hidden="true" /> Rời nhóm
                   </button>
+
+                  {isOwner && (
+                    <button 
+                      type="button"
+                      onClick={() => { setIsSettingsOpen(false); setRoomAction('DELETE'); }} 
+                      className="w-full text-left px-3 py-2.5 rounded-xl hover:bg-rose-500/10 focus-visible:bg-rose-500/10 focus-visible:outline-none text-red-500 font-bold text-xs flex items-center gap-2.5 border-t border-[var(--color-border)]/50 pt-2 cursor-pointer"
+                    >
+                      <Trash2 size={14} aria-hidden="true" /> Xóa nhóm
+                    </button>
+                  )}
                 </div>
               </>
             )}
-          </div>
-
-          <div className="hidden md:block">
-            <img src={profile?.photoURL || ''} alt="me" className="w-9 h-9 rounded-full object-cover border border-[var(--color-border)] shadow-sm bg-[var(--color-card-solid)]" />
           </div>
         </div>
       </div>
 
       {/* Main Content Area */}
       <div className="flex-1 overflow-y-auto no-scrollbar p-0 relative z-10">
+
         <AnimatePresence mode="wait">
           {currentScreen === Screen.HOME && (
             <motion.div key="home" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.18 }} className="h-full w-full">

@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { Expense, Transaction, SettledBill } from '../types';
 import { firebaseService } from '../services/firebase';
 import { formatVND, ALL_BANKS } from '../constants';
-import { ArrowLeft, QrCode, Download, CheckCircle2, ArrowRight } from '../components/ui/Icons';
+import { ArrowLeft, QrCode, Download, CheckCircle2, ArrowRight, DollarSign } from '../components/ui/Icons';
 import { Modal } from '../components/ui/Modal';
 
 function calculateSettlement(expenses: Expense[], members: any[]): { transactions: Transaction[], total: number } {
@@ -172,6 +172,41 @@ export default function SettleUpScreen({ roomId, room, members, user, isHistoryV
          )}
          </div>
        </div>
+
+        {/* Expenses list participating in settlement */}
+        <div className="glass-card p-6 md:p-8 mx-4 mb-4">
+          <h3 className="text-lg font-heading font-medium mb-6 pb-4 border-b-2 border-[var(--color-border)] relative z-10 flex items-center gap-3 text-[var(--color-foreground)]">
+            <DollarSign size={24} className="text-[var(--color-accent)]" aria-hidden="true" /> Các khoản chi tiêu tham gia ({expenses.length})
+          </h3>
+          
+          {expenses.length === 0 ? (
+            <div className="text-center p-8 bg-[var(--color-muted)]/50 border border-[var(--color-border)] rounded-xl">
+              <span className="font-bold text-sm text-[var(--color-muted-foreground)]">Không có khoản chi tiêu nào trong quyết toán này.</span>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-3 max-h-[260px] overflow-y-auto no-scrollbar pr-1 relative z-10">
+              {expenses.map((e, idx) => (
+                <div key={e.id || idx} className="p-4 bg-[var(--color-card-solid)] border border-[var(--color-border)] rounded-2xl flex justify-between items-center gap-4 hover:border-[var(--color-border-hover)] transition-all">
+                  <div className="min-w-0">
+                    <h4 className="font-bold text-[13px] text-[var(--color-foreground)] truncate">{e.itemName}</h4>
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[10px] text-[var(--color-muted-foreground)] font-semibold mt-1">
+                      <span>Trả: {e.payers ? 'Nhiều người' : getDisplayName(e.payer)}</span>
+                      <span>•</span>
+                      <span>{new Date(e.createdAt).toLocaleDateString('vi-VN')}</span>
+                      <span>•</span>
+                      <span className="bg-[var(--color-orange-light)] text-[var(--color-accent)] px-1.5 py-0.5 rounded border border-[var(--color-border)]">
+                        {e.splitMethod === 'EVENLY' ? 'Chia đều' : 'Tự nhập'}
+                      </span>
+                    </div>
+                  </div>
+                  <span className="font-heading font-bold text-sm text-[var(--color-accent)] shrink-0">
+                    {formatVND(e.amount)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
 
         {!isHistoryView && (
           <div className="flex justify-center mt-2 mb-12 px-4 print:hidden">

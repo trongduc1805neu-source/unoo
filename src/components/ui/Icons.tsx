@@ -102,6 +102,8 @@ export const Trash2 = (props: IconProps) => <DynamicIcon name="trash" {...props}
 export const Plus = (props: IconProps) => <DynamicIcon name="plus" {...props} />;
 export const Wallet = (props: IconProps) => <DynamicIcon name="wallet" {...props} />;
 export const Info = (props: IconProps) => <DynamicIcon name="info-circle" {...props} />;
+export const ExclamationCircle = (props: IconProps) => <DynamicIcon name="exclamation-circle" {...props} />;
+export const ExclamationCircleFill = (props: IconProps) => <DynamicIcon name="exclamation-circle-fill" {...props} />;
 export const ArrowRight = (props: IconProps) => <DynamicIcon name="arrow-right" {...props} />;
 export const Sparkles = (props: IconProps) => <DynamicIcon name="stars" {...props} />;
 export const AlertTriangle = (props: IconProps) => <DynamicIcon name="exclamation-triangle" {...props} />;

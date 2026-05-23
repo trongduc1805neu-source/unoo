@@ -19,6 +19,7 @@ export default function App() {
   
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'messages' | 'schedules' | 'history' | 'profile'>('messages');
+  const [slideOutActiveRoom, setSlideOutActiveRoom] = useState(false);
 
   // Khởi tạo theme (Light/Dark Mode)
   useEffect(() => {
@@ -128,8 +129,12 @@ export default function App() {
   };
 
   const handleLeaveRoom = () => {
-    setActiveRoomId(null);
-    localStorage.removeItem('uno_active_room_id');
+    setSlideOutActiveRoom(true);
+    setTimeout(() => {
+      setActiveRoomId(null);
+      setSlideOutActiveRoom(false);
+      localStorage.removeItem('uno_active_room_id');
+    }, 300);
   };
 
   if (isLoading) {
@@ -153,53 +158,62 @@ export default function App() {
     );
   }
 
-  return (
-    <div className="flex h-screen w-full bg-[var(--color-background)] overflow-hidden">
-      {/* Sidebar - Left column */}
-      <div className={`h-full border-r border-[var(--color-border)] bg-[var(--color-card)] 
-        ${activeTab === 'messages' 
-          ? 'w-full md:w-[384px] md:min-w-[384px] lg:w-[420px] lg:min-w-[420px] flex-shrink-0' 
-          : 'flex-1 w-full'
-        } 
-        ${activeRoomId && activeRoomDetails && activeTab === 'messages' ? 'hidden md:block' : 'block'}`}
-      >
-        <Dashboard 
-          user={user} 
-          profile={profile} 
-          myRooms={myRooms} 
-          pendingRequests={myPendingRequests}
-          onSelectRoom={handleSelectRoom}
-          activeRoomId={activeRoomId}
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-        />
-      </div>
+  const isSlidIn = activeRoomId && activeRoomDetails && !slideOutActiveRoom;
 
-      {/* Main Content */}
-      <div className={`flex-1 min-w-0 overflow-hidden h-full relative ${
-        activeTab !== 'messages' 
-          ? 'hidden' 
-          : (!activeRoomId || !activeRoomDetails ? 'hidden md:flex items-center justify-center bg-[var(--color-muted)]' : 'block')
-      }`}>
-        {!activeRoomId || !activeRoomDetails ? (
-           <div className="text-center p-8 max-w-md mx-auto flex flex-col items-center justify-center h-full">
-             <div className="w-24 h-24 mb-6 bg-[var(--color-card)] rounded-[2rem] border border-[var(--color-border)] shadow-[0_4px_12px_rgba(36,129,204,0.06)] flex items-center justify-center animate-pulse">
-                <MessageSquare className="w-10 h-10 text-[var(--color-accent)]" aria-hidden="true" />
-             </div>
-             <h2 className="text-2xl font-heading font-bold text-[var(--color-foreground)] mb-2">Chưa chọn nhóm</h2>
-             <p className="text-[var(--color-muted-foreground)] text-sm leading-relaxed">
-               Chọn một nhóm bên thanh công cụ hoặc tạo nhóm mới để bắt đầu chia sẻ chi tiêu.
-             </p>
-           </div>
-        ) : (
-          <ActiveRoom 
+  return (
+    <div className="flex h-screen w-full bg-[var(--color-background)] overflow-hidden relative">
+      <div className={`h-full flex md:flex-row transition-transform duration-300 ease-out md:transform-none
+        ${activeTab === 'messages' 
+          ? 'w-[200vw] md:w-full grid grid-cols-[100vw_100vw] md:flex' 
+          : 'w-full flex'
+        }
+        ${isSlidIn ? '-translate-x-[100vw] md:translate-x-0' : 'translate-x-0'}`}
+      >
+        {/* Sidebar - Left column */}
+        <div className={`h-full border-r border-[var(--color-border)] bg-[var(--color-card)] flex-shrink-0
+          ${activeTab === 'messages' 
+            ? 'w-[100vw] md:w-[384px] md:min-w-[384px] lg:w-[420px] lg:min-w-[420px]' 
+            : 'w-full'
+          }`}
+        >
+          <Dashboard 
             user={user} 
-            profile={profile}
-            roomDetails={activeRoomDetails} 
-            roomId={activeRoomId} 
-            onLeaveRoom={handleLeaveRoom} 
+            profile={profile} 
+            myRooms={myRooms} 
+            pendingRequests={myPendingRequests}
+            onSelectRoom={handleSelectRoom}
+            activeRoomId={activeRoomId}
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
           />
-        )}
+        </div>
+
+        {/* Main Content - Right column */}
+        <div className={`h-full flex-shrink-0 md:flex-1 min-w-0 overflow-hidden relative
+          ${activeTab !== 'messages' ? 'hidden' : 'w-[100vw] md:w-auto flex'}`}
+        >
+          {!activeRoomId || !activeRoomDetails ? (
+             <div className="hidden md:flex flex-col items-center justify-center h-full w-full bg-[var(--color-muted)] text-center p-8 max-w-md mx-auto">
+               <div className="w-24 h-24 mb-6 bg-[var(--color-card)] rounded-[2rem] border border-[var(--color-border)] shadow-[0_4px_12px_rgba(36,129,204,0.06)] flex items-center justify-center animate-pulse">
+                  <MessageSquare className="w-10 h-10 text-[var(--color-accent)]" aria-hidden="true" />
+               </div>
+               <h2 className="text-2xl font-heading font-bold text-[var(--color-foreground)] mb-2">Chưa chọn nhóm</h2>
+               <p className="text-[var(--color-muted-foreground)] text-sm leading-relaxed">
+                 Chọn một nhóm bên thanh công cụ hoặc tạo nhóm mới để bắt đầu chia sẻ chi tiêu.
+               </p>
+             </div>
+          ) : (
+            <div className="h-full w-full">
+              <ActiveRoom 
+                user={user} 
+                profile={profile}
+                roomDetails={activeRoomDetails} 
+                roomId={activeRoomId} 
+                onLeaveRoom={handleLeaveRoom} 
+              />
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { Screen, Expense } from '../types';
 import { firebaseService } from '../services/firebase';
 import { formatVND } from '../constants';
-import { Search, EmojiSmile, ImageIcon, Paperclip, Scissors, SendIcon, ChatDots, ChatDotsFill, Plus, CheckSquare, Clock, MapPin, Navigation, UserPlus, Trash2, Edit2, MessageCircle, MessagesSquare, BarChart3, DollarSign, AlertTriangle, FileText, ThumbsUp, MessageSquarePlus, Pin, PartyPopper, ArrowRight } from '../components/ui/Icons';
+import { Search, EmojiSmile, ImageIcon, Paperclip, Scissors, SendIcon, ChatDots, ChatDotsFill, Plus, CheckSquare, Clock, MapPin, Navigation, UserPlus, Trash2, Edit2, MessageCircle, MessagesSquare, BarChart3, DollarSign, AlertTriangle, FileText, ThumbsUp, MessageSquarePlus, Pin, PartyPopper, ArrowRight, CalendarCheck, Check } from '../components/ui/Icons';
 import { Modal } from '../components/ui/Modal';
 import { ConfirmModal } from '../components/ui/ConfirmModal';
 import { motion, AnimatePresence } from 'motion/react';
@@ -32,6 +32,8 @@ export default function HomeScreen({ roomId, room, members, user, profile, onNav
   const [planTitle, setPlanTitle] = useState('');
   const [planNote, setPlanNote] = useState('');
   const [planTime, setPlanTime] = useState('');
+  const [planLocation, setPlanLocation] = useState('');
+  const [planBudget, setPlanBudget] = useState('');
 
   const handleAddPlan = async () => {
     if (!planTitle) return;
@@ -46,16 +48,18 @@ export default function HomeScreen({ roomId, room, members, user, profile, onNav
       title: planTitle, 
       note: planNote, 
       time: planTime, 
+      location: planLocation,
+      budget: Number(planBudget) || 0,
       createdBy: user.displayName || user.email || 'Thành viên', 
       creatorUid: user.uid, 
       votes: {} 
     });
 
     // Viết tin nhắn hệ thống vào chat nhóm báo đã lên lịch chuyến đi
-    await firebaseService.writeChatMessage(roomId, user, `đã lên kế hoạch chuyến đi mới: "${planTitle}"`, 'system');
+    await firebaseService.writeChatMessage(roomId, user, `đã lên kế hoạch chuyến đi mới: "${planTitle}"`, 'system', { planId: newRef.key });
 
     setIsCreatePlanOpen(false);
-    setPlanTitle(''); setPlanNote(''); setPlanTime('');
+    setPlanTitle(''); setPlanNote(''); setPlanTime(''); setPlanLocation(''); setPlanBudget('');
   };
 
   const executeRemoveExpense = async () => {
@@ -74,6 +78,20 @@ export default function HomeScreen({ roomId, room, members, user, profile, onNav
     
     await firebaseService.writeChatMessage(roomId, user, `đã xoá khoản chi "${exp.itemName}"`, 'system');
     setExpenseToDelete(null);
+  };
+
+  const togglePlanVote = async (planId: string) => {
+    const plan = room.plans?.[planId];
+    if (!plan) return;
+    const votes = plan.votes || {};
+    const newVotes = { ...votes };
+    if (newVotes[user.uid]) delete newVotes[user.uid];
+    else newVotes[user.uid] = true;
+    
+    const db = (await import('firebase/database')).getDatabase();
+    const ref = (await import('firebase/database')).ref;
+    const update = (await import('firebase/database')).update;
+    await update(ref(db, `rooms/${roomId}/plans/${planId}`), { votes: newVotes });
   };
 
   // Compute Balances
@@ -113,15 +131,16 @@ export default function HomeScreen({ roomId, room, members, user, profile, onNav
       <div className={`flex-1 flex flex-col h-full bg-[var(--color-muted)] relative ${showRightSidebar ? 'hidden lg:flex' : 'flex'}`}>
          {/* Confetti Background in chat */}
          <div className="absolute inset-0 z-0 opacity-[0.05] pointer-events-none" style={{ backgroundImage: 'radial-gradient(var(--color-foreground) 2px, transparent 2px)', backgroundSize: '24px 24px' }}></div>
-         <ChatSection 
-           roomId={roomId} 
-           room={room} 
-           user={user} 
-           getDisplayName={getDisplayName} 
-           onViewSettlement={onViewSettlement} 
-           onNavigate={onNavigate}
-           onCreatePlan={() => setIsCreatePlanOpen(true)}
-         />
+          <ChatSection 
+            roomId={roomId} 
+            room={room} 
+            user={user} 
+            getDisplayName={getDisplayName} 
+            onViewSettlement={onViewSettlement} 
+            onNavigate={onNavigate}
+            onCreatePlan={() => setIsCreatePlanOpen(true)}
+            onToggleVote={togglePlanVote}
+          />
       </div>
 
       {/* Right Sidebar - Details */}
@@ -315,6 +334,31 @@ export default function HomeScreen({ roomId, room, members, user, profile, onNav
               value={planTime} 
               onChange={e=>setPlanTime(e.target.value)} 
               className="candy-input w-full font-bold focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none"
+            />
+          </div>
+          <div>
+            <label htmlFor="plan-location" className="block text-xs font-bold text-[var(--color-muted-foreground)] mb-2">Ở đâu?</label>
+            <input 
+              id="plan-location"
+              name="planLocation"
+              autoComplete="off"
+              placeholder="VD: Cổng Công viên Thống Nhất" 
+              value={planLocation} 
+              onChange={e=>setPlanLocation(e.target.value)} 
+              className="candy-input w-full font-bold focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none"
+            />
+          </div>
+          <div>
+            <label htmlFor="plan-budget" className="block text-xs font-bold text-[var(--color-muted-foreground)] mb-2">Dự chi (VNĐ)</label>
+            <input 
+              id="plan-budget"
+              type="number"
+              inputMode="numeric"
+              name="planBudget"
+              placeholder="0" 
+              value={planBudget} 
+              onChange={e=>setPlanBudget(e.target.value)} 
+              className="candy-input w-full font-bold text-right text-[var(--color-accent)] focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none"
             />
           </div>
           <div>
@@ -584,7 +628,7 @@ function PlansSection({ roomId, room, members, user, getDisplayName, isOwner, on
   );
 }
 
-function ChatSection({ roomId, room, user, getDisplayName, onViewSettlement, onNavigate, onCreatePlan }: any) {
+function ChatSection({ roomId, room, user, getDisplayName, onViewSettlement, onNavigate, onCreatePlan, onToggleVote }: any) {
   const [messages, setMessages] = useState<any[]>([]);
   const [text, setText] = useState('');
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
@@ -665,9 +709,28 @@ function ChatSection({ roomId, room, user, getDisplayName, onViewSettlement, onN
               {pinnedPlan.note && <span className="text-[var(--color-muted-foreground)] font-medium text-[11px] truncate md:ml-1.5">— {pinnedPlan.note}</span>}
             </div>
           </div>
-          <div className="flex items-center gap-1 text-[11px] text-[var(--color-accent)] font-bold shrink-0 pl-2">
-            <span>+{plans.length > 1 ? plans.length - 1 : 0} ghim</span>
-          </div>
+          {(() => {
+            const myVote = (pinnedPlan.votes || {})[user.uid];
+            const voteCount = Object.keys(pinnedPlan.votes || {}).length;
+            return (
+              <div className="flex items-center gap-3 shrink-0 pl-2">
+                <button
+                  type="button"
+                  onClick={() => onToggleVote && onToggleVote(pinnedPlan.id)}
+                  className={`px-3 py-1 text-[11px] font-bold rounded-lg transition-all active:scale-95 cursor-pointer shadow-sm ${
+                    myVote 
+                      ? 'bg-[var(--color-accent)] text-white hover:bg-[var(--color-accent)]/90' 
+                      : 'bg-[var(--color-card-solid)] text-[var(--color-accent)] border border-[var(--color-border)] hover:bg-[var(--color-muted)]'
+                  }`}
+                >
+                  {myVote ? `✓ Tham gia (${voteCount})` : `Tham gia (${voteCount})`}
+                </button>
+                <span className="text-[11px] text-[var(--color-accent)] font-bold">
+                  +{plans.length > 1 ? plans.length - 1 : 0} ghim
+                </span>
+              </div>
+            );
+          })()}
         </div>
       )}
 
@@ -676,14 +739,79 @@ function ChatSection({ roomId, room, user, getDisplayName, onViewSettlement, onN
           const prevMsg = index > 0 ? messages[index - 1] : null;
           const showAvatar = !prevMsg || prevMsg.uid !== m.uid || prevMsg.type !== m.type;
 
-          if (m.type === 'system') return (
-            <div key={m.id || index} className="text-center my-3">
-               <span className="chat-bubble-system">
-                 {m.displayName && <b className="text-[var(--color-accent)] mr-1">{getDisplayName(m.uid)}</b>}
-                 {m.text}
-               </span>
-            </div>
-          );
+          if (m.type === 'system') {
+            const planId = m.payload?.planId;
+            const plan = planId ? room.plans?.[planId] : null;
+            if (plan) {
+              const myVote = (plan.votes || {})[user.uid];
+              const voteCount = Object.keys(plan.votes || {}).length;
+              return (
+                <div 
+                  key={m.id || index} 
+                  className="bg-sky-50 dark:bg-sky-950/20 rounded-2xl border border-sky-200 dark:border-sky-900/50 p-4.5 text-sm my-4 text-center w-full max-w-xs sm:max-w-sm mx-auto flex flex-col items-center shadow-sm transition-all duration-200"
+                >
+                  <div className="w-10 h-10 rounded-full bg-sky-500 text-white flex items-center justify-center mb-2.5 shadow-[0_2px_8px_rgba(14,165,233,0.3)] animate-pulse">
+                     <CalendarCheck size={18} aria-hidden="true" />
+                  </div>
+                  <span className="font-bold text-[var(--color-foreground)] text-sm">
+                    Kế Hoạch Chuyến Đi Mới
+                  </span>
+                  <span className="text-[11px] font-semibold text-[var(--color-muted-foreground)] mt-1">
+                    Lên lịch bởi {getDisplayName(plan.creatorUid || m.uid)}
+                  </span>
+                  
+                  <div className="mt-3 w-full bg-[var(--color-card-solid)] border border-[var(--color-border)] rounded-xl p-3 text-left flex flex-col gap-2">
+                    <div className="font-bold text-[var(--color-foreground)] text-sm">{plan.title}</div>
+                    {plan.time && (
+                      <div className="text-xs text-[var(--color-muted-foreground)] flex items-center gap-1.5 font-medium">
+                        <Clock size={13} className="text-[var(--color-accent)] shrink-0" aria-hidden="true" />
+                        {formatPlanTime(plan.time)}
+                      </div>
+                    )}
+                    {plan.location && (
+                      <div className="text-xs text-[var(--color-muted-foreground)] flex items-center gap-1.5 font-medium">
+                        <MapPin size={13} className="text-[var(--color-quaternary)] shrink-0" aria-hidden="true" />
+                        {plan.location}
+                      </div>
+                    )}
+                    {plan.budget > 0 && (
+                      <div className="text-xs text-[var(--color-muted-foreground)] flex items-center gap-1.5 font-medium">
+                        <DollarSign size={13} className="text-[var(--color-accent)] shrink-0" aria-hidden="true" />
+                        Dự chi: <span className="font-bold text-[var(--color-accent)]">{formatVND(plan.budget)}</span>
+                      </div>
+                    )}
+                    {plan.note && (
+                      <div className="text-xs text-[var(--color-muted-foreground)] italic border-t border-[var(--color-border)]/50 pt-1.5 mt-0.5 font-normal">
+                        {plan.note}
+                      </div>
+                    )}
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => onToggleVote && onToggleVote(planId)}
+                    className={`mt-4 px-5 py-2 w-full text-xs font-bold rounded-xl transition-all active:scale-95 cursor-pointer shadow-sm flex items-center justify-center gap-1.5 ${
+                      myVote 
+                        ? 'bg-[var(--color-accent)] text-white hover:bg-[var(--color-accent)]/90' 
+                        : 'bg-[var(--color-card-solid)] text-[var(--color-accent)] border border-[var(--color-border)] hover:bg-[var(--color-muted)]'
+                    }`}
+                  >
+                    {myVote ? <Check size={14} aria-hidden="true" /> : null}
+                    {myVote ? `Đã xác nhận tham gia (${voteCount})` : `Tham gia (${voteCount})`}
+                  </button>
+                </div>
+              );
+            }
+
+            return (
+              <div key={m.id || index} className="text-center my-3">
+                 <span className="chat-bubble-system">
+                   {m.displayName && <b className="text-[var(--color-accent)] mr-1">{getDisplayName(m.uid)}</b>}
+                   {m.text}
+                 </span>
+              </div>
+            );
+          }
           if (m.type === 'settlement') {
             const billId = m.payload?.billId;
             const totalAmount = m.payload?.totalAmount || 0;
