@@ -230,24 +230,30 @@ export default function Dashboard({ user, profile, myRooms, pendingRequests, onS
         });
       });
 
-      // Trả nợ (green)
+      // Trả nợ
       const transactions = bill.transactions || [];
       transactions.forEach((t: any, idx: number) => {
         const fromName = getDisplayNameForBill(t.from, bill);
         const toName = getDisplayNameForBill(t.to, bill);
+        const isPaid = t.status === 'paid';
         list.push({
           id: `tx-${bill.id}-${idx}`,
           type: 'transfer',
+          isPendingTransfer: !isPaid,
           timestamp: new Date(bill.id || Date.now()),
           dateStr: bill.date,
-          title: `${fromName} trả nợ ${toName}`,
-          description: `Chuyển khoản VietQR nhận tiền`,
+          title: `${fromName} ${isPaid ? 'trả nợ' : 'nợ'} ${toName}`,
+          description: isPaid ? `Đã chuyển khoản VietQR nhận tiền` : `Chưa chuyển khoản VietQR nhận tiền`,
           amount: t.amount,
-          badgeText: 'Đã trả nợ',
-          badgeColor: 'border-emerald-500/20 bg-emerald-500/10 text-emerald-500 dark:text-emerald-400',
-          cardBorder: 'hover:border-emerald-500/50 hover:shadow-[0_0_15px_rgba(16,185,129,0.15)]',
+          badgeText: isPaid ? 'Đã trả nợ' : 'Chờ thanh toán',
+          badgeColor: isPaid 
+            ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-500 dark:text-emerald-400'
+            : 'border-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-400',
+          cardBorder: isPaid
+            ? 'hover:border-emerald-500/50 hover:shadow-[0_0_15px_rgba(16,185,129,0.15)]'
+            : 'hover:border-amber-500/50 hover:shadow-[0_0_15px_rgba(245,158,11,0.15)]',
           avatar: fromName.substring(0, 2).toUpperCase(),
-          iconType: 'transfer',
+          iconType: isPaid ? 'transfer' : 'pending',
           rawBill: bill
         });
       });
@@ -1493,7 +1499,7 @@ export default function Dashboard({ user, profile, myRooms, pendingRequests, onS
                                           <div className={`w-3.5 h-3.5 rounded-full border-4 border-[var(--color-background)] z-10 shrink-0 ${
                                             ev.type === 'settlement' ? 'bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]' :
                                             ev.type === 'expense' ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]' :
-                                            ev.type === 'transfer' ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' :
+                                            ev.type === 'transfer' ? (ev.isPendingTransfer ? 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)]' : 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]') :
                                             'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)]'
                                           }`}></div>
                                         </div>
@@ -1516,7 +1522,7 @@ export default function Dashboard({ user, profile, myRooms, pendingRequests, onS
                                             <div className={`w-10 h-10 rounded-full flex items-center justify-center font-heading text-xs font-bold ${
                                               ev.type === 'settlement' ? 'bg-blue-500/10 text-blue-500' :
                                               ev.type === 'expense' ? 'bg-red-500/10 text-red-500' :
-                                              ev.type === 'transfer' ? 'bg-emerald-500/10 text-emerald-500' :
+                                              ev.type === 'transfer' ? (ev.isPendingTransfer ? 'bg-amber-500/10 text-amber-500' : 'bg-emerald-500/10 text-emerald-500') :
                                               'bg-amber-500/10 text-amber-500'
                                             }`}>
                                               {ev.avatar}
@@ -1524,7 +1530,7 @@ export default function Dashboard({ user, profile, myRooms, pendingRequests, onS
                                             <div className={`absolute -bottom-1 -right-1 w-4.5 h-4.5 rounded-full border-2 border-[var(--color-card-solid)] flex items-center justify-center text-white ${
                                               ev.type === 'settlement' ? 'bg-blue-500' :
                                               ev.type === 'expense' ? 'bg-red-500' :
-                                              ev.type === 'transfer' ? 'bg-emerald-500' :
+                                              ev.type === 'transfer' ? (ev.isPendingTransfer ? 'bg-amber-500' : 'bg-emerald-500') :
                                               'bg-amber-500'
                                             }`}>
                                               {ev.type === 'settlement' && <Wallet size={9} strokeWidth={2.5} />}
@@ -1843,20 +1849,23 @@ export default function Dashboard({ user, profile, myRooms, pendingRequests, onS
         </div>
       </Modal>
 
-      {selectedHistoryBill && (
-        <Modal 
-          isOpen={!!selectedHistoryBill} 
-          onClose={() => setSelectedHistoryBill(null)} 
-          title="Chi Tiết Quyết Toán"
-        >
-          <HistoryBillDetailModal 
-            bill={selectedHistoryBill} 
+      {selectedHistoryBill && (() => {
+        const liveBill = allSettledBills.find((b: any) => b.id === selectedHistoryBill.id && b.roomId === selectedHistoryBill.roomId) || selectedHistoryBill;
+        return (
+          <Modal 
+            isOpen={!!selectedHistoryBill} 
             onClose={() => setSelectedHistoryBill(null)} 
-            getDisplayName={(uid: string) => getDisplayNameForBill(uid, selectedHistoryBill)}
-            setQrTx={setHistoryQrTx}
-          />
-        </Modal>
-      )}
+            title="Chi Tiết Quyết Toán"
+          >
+            <HistoryBillDetailModal 
+              bill={liveBill} 
+              onClose={() => setSelectedHistoryBill(null)} 
+              getDisplayName={(uid: string) => getDisplayNameForBill(uid, liveBill)}
+              setQrTx={setHistoryQrTx}
+            />
+          </Modal>
+        );
+      })()}
 
       {historyQrTx && (
         <HistoryQRModal 
@@ -1865,6 +1874,7 @@ export default function Dashboard({ user, profile, myRooms, pendingRequests, onS
           onClose={() => setHistoryQrTx(null)} 
           getDisplayName={(uid: string) => getDisplayNameForBill(uid, historyQrTx.bill)}
           members={getRoomMembers(historyQrTx.bill)}
+          user={user}
         />
       )}
     </div>
@@ -2275,30 +2285,47 @@ function HistoryBillDetailModal({ bill, onClose, getDisplayName, setQrTx }: any)
           </div>
         ) : (
           <div className="flex flex-col gap-3 max-h-[220px] overflow-y-auto no-scrollbar pr-1">
-            {transactions.map((t: any, idx: number) => (
-              <div key={idx} className="flex justify-between items-center gap-3 bg-[var(--color-card-solid)] p-3 rounded-xl border border-[var(--color-border)] hover:-translate-y-0.5 transition-all">
-                <div className="flex-1 flex items-center gap-1.5 text-xs font-bold truncate">
-                  <span className="text-[var(--color-muted-foreground)] truncate max-w-[40%]">{getDisplayName(t.from)}</span>
-                  <div className="flex items-center text-[var(--color-quaternary)] px-1 shrink-0">
-                    <ArrowRight size={12} strokeWidth={3} aria-hidden="true"/>
+            {transactions.map((t: any, idx: number) => {
+              const isPaid = t.status === 'paid';
+              return (
+                <div 
+                  key={idx} 
+                  className={`flex justify-between items-center gap-3 p-3 rounded-xl border transition-all ${
+                    isPaid 
+                      ? 'bg-emerald-500/5 border-emerald-500/20 opacity-75' 
+                      : 'bg-[var(--color-card-solid)] border-[var(--color-border)] hover:-translate-y-0.5'
+                  }`}
+                >
+                  <div className="flex-1 flex items-center gap-1.5 text-xs font-bold truncate">
+                    <span className="text-[var(--color-muted-foreground)] truncate max-w-[30%]">{getDisplayName(t.from)}</span>
+                    <div className="flex items-center text-[var(--color-quaternary)] px-1 shrink-0">
+                      <ArrowRight size={12} strokeWidth={3} aria-hidden="true"/>
+                    </div>
+                    <span className="text-[var(--color-foreground)] truncate max-w-[30%]">{getDisplayName(t.to)}</span>
+                    <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ml-1 shrink-0 ${
+                      isPaid 
+                        ? 'bg-emerald-100 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-400 border border-emerald-500/20' 
+                        : 'bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-400 border border-amber-500/20'
+                    }`}>
+                      {isPaid ? 'Đã trả nợ' : 'Chờ thanh toán'}
+                    </span>
                   </div>
-                  <span className="text-[var(--color-foreground)] truncate max-w-[40%]">{getDisplayName(t.to)}</span>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span className="font-bold text-xs bg-[var(--color-accent)]/10 text-[var(--color-accent)] border border-[var(--color-accent)]/20 px-2.5 py-1 rounded-lg">
+                      {formatVND(t.amount)}
+                    </span>
+                    <button 
+                      onClick={() => setQrTx({ tx: { ...t, index: idx }, bill })}
+                      className="w-8 h-8 flex items-center justify-center rounded-full border border-[var(--color-border)] hover:bg-[var(--color-accent)] hover:text-white transition-colors shadow-sm bg-[var(--color-card-solid)] text-[var(--color-foreground)] shrink-0 cursor-pointer focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none" 
+                      title="Mã QR Chuyển Khoản"
+                      aria-label="Mã QR Chuyển Khoản"
+                    >
+                      <QrCode size={14} aria-hidden="true" />
+                    </button>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  <span className="font-bold text-xs bg-[var(--color-accent)]/10 text-[var(--color-accent)] border border-[var(--color-accent)]/20 px-2.5 py-1 rounded-lg">
-                    {formatVND(t.amount)}
-                  </span>
-                  <button 
-                    onClick={() => setQrTx({ tx: t, bill })}
-                    className="w-8 h-8 flex items-center justify-center rounded-full border border-[var(--color-border)] hover:bg-[var(--color-accent)] hover:text-white transition-colors shadow-sm bg-[var(--color-card-solid)] text-[var(--color-foreground)] shrink-0 cursor-pointer focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none" 
-                    title="Mã QR Chuyển Khoản"
-                    aria-label="Mã QR Chuyển Khoản"
-                  >
-                    <QrCode size={14} aria-hidden="true" />
-                  </button>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
@@ -2338,7 +2365,7 @@ function HistoryBillDetailModal({ bill, onClose, getDisplayName, setQrTx }: any)
   );
 }
 
-function HistoryQRModal({ tx, bill, onClose, getDisplayName, members }: any) {
+function HistoryQRModal({ tx, bill, onClose, getDisplayName, members, user }: any) {
   const receiver = members.find((m:any) => m.uid === tx.to);
   const infoMissing = !receiver || !receiver.bankId || !receiver.accountNumber;
 
@@ -2346,6 +2373,7 @@ function HistoryQRModal({ tx, bill, onClose, getDisplayName, members }: any) {
   const [bankId, setBankId] = useState(receiver?.bankId || '');
   const [accNum, setAccNum] = useState(receiver?.accountNumber || '');
   const [isSaving, setIsSaving] = useState(false);
+  const [isConfirming, setIsConfirming] = useState(false);
 
   const rawInfo = `Tra no - ${getDisplayName(tx.from)} thanh toan`;
   const queryInfo = encodeURIComponent(
@@ -2378,6 +2406,37 @@ function HistoryQRModal({ tx, bill, onClose, getDisplayName, members }: any) {
       console.error("Lỗi khi lưu thẻ:", e);
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleConfirmPayment = async () => {
+    if (!bill.roomId || !bill.id || tx.index === undefined) return;
+    setIsConfirming(true);
+    try {
+      const db = (await import('firebase/database')).getDatabase();
+      const ref = (await import('firebase/database')).ref;
+      const update = (await import('firebase/database')).update;
+      
+      const updates: any = {};
+      updates[`rooms/${bill.roomId}/settledBills/${bill.id}/transactions/${tx.index}/status`] = 'paid';
+      
+      await update(ref(db), updates);
+      
+      // Ghi tin nhắn hệ thống
+      const fromName = getDisplayName(tx.from);
+      const toName = getDisplayName(tx.to);
+      await firebaseService.writeChatMessage(
+        bill.roomId, 
+        user, 
+        `đã xác nhận ${fromName} trả nợ thành công cho ${toName} số tiền ${formatVND(tx.amount)}`, 
+        'system'
+      );
+      
+      onClose();
+    } catch (e) {
+      console.error("Lỗi khi xác nhận thanh toán:", e);
+    } finally {
+      setIsConfirming(false);
     }
   };
 
@@ -2469,6 +2528,23 @@ function HistoryQRModal({ tx, bill, onClose, getDisplayName, members }: any) {
                </button>
              </div>
            </>
+         )}
+
+         {tx.status !== 'paid' && (
+           <button 
+             type="button" 
+             onClick={handleConfirmPayment} 
+             disabled={isConfirming}
+             className="candy-btn w-full mt-5 py-2.5 text-xs font-bold shadow-md bg-emerald-600 hover:bg-emerald-500 text-white focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:outline-none"
+           >
+             {isConfirming ? "Đang xác nhận..." : "Xác Nhận Đã Thanh Toán ✔"}
+           </button>
+         )}
+
+         {tx.status === 'paid' && (
+           <div className="mt-5 px-4 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[11px] font-bold flex items-center gap-1.5 justify-center w-full">
+             <span>Giao dịch đã hoàn tất thanh toán</span>
+           </div>
          )}
          
          <button onClick={onClose} className="candy-btn candy-btn-secondary w-full mt-6 py-2.5 text-xs bg-[var(--color-card-solid)] focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none">Đóng Cửa Sổ</button>

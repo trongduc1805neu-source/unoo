@@ -93,11 +93,13 @@ export default function SettleUpScreen({ roomId, room, members, user, isHistoryV
     const settledRef = push(ref(db, `rooms/${roomId}/settledBills`));
     const billId = settledRef.key as string;
     
+    const updatedTransactions = transactions.map(t => ({ ...t, status: 'pending' as const }));
+    
     const newBill: SettledBill = {
        id: billId,
        date: new Date().toLocaleString('vi-VN'),
        expenses,
-       transactions,
+       transactions: updatedTransactions,
        totalAmount: total,
        settledBy: user.displayName,
        mainCreditor: transactions.length > 0 ? transactions[0].to : undefined
@@ -108,7 +110,7 @@ export default function SettleUpScreen({ roomId, room, members, user, isHistoryV
     updates[`rooms/${roomId}/expenses`] = null; // clear expenses
 
     await update(ref(db), updates);
-    await firebaseService.writeChatMessage(roomId, user, '', 'settlement', { settledBy: user.displayName, totalAmount: total, transactions, billId });
+    await firebaseService.writeChatMessage(roomId, user, '', 'settlement', { settledBy: user.displayName, totalAmount: total, transactions: updatedTransactions, billId });
     onClose();
   };
 
@@ -153,21 +155,50 @@ export default function SettleUpScreen({ roomId, room, members, user, isHistoryV
            </div>
          ) : (
            <div className="flex flex-col gap-4">
-             {transactions.map((t, idx) => (
-               <div key={idx} className="flex flex-col sm:flex-row justify-between items-center gap-4 bg-[var(--color-card-solid)] p-5 rounded-xl border border-[var(--color-border)] hover:border-[var(--color-border)] hover:-translate-y-1 hover:shadow-sm transition-all">
-                 <div className="flex-1 flex flex-wrap items-center justify-center sm:justify-start gap-x-4 w-full text-base relative z-10">
-                   <span className="font-bold  text-[var(--color-muted-foreground)] group-hover:text-[var(--color-foreground)] transition-colors">{getDisplayName(t.from)}</span>
-                   <div className="flex items-center gap-2 text-[var(--color-quaternary)] px-2" aria-hidden="true">
-                     <div className="h-[2px] w-4 bg-[var(--color-quaternary)]"></div>
-                     <ArrowRight size={16} strokeWidth={4}/>
-                     <div className="h-[2px] w-4 bg-[var(--color-quaternary)]"></div>
-                   </div>
-                   <span className="font-bold  text-[var(--color-foreground)]">{getDisplayName(t.to)}</span>
-                 </div>
-                 <div className="font-medium text-lg bg-[var(--color-accent)] px-4 py-2 rounded-xl text-white relative z-10 shadow-sm border border-[var(--color-border)]">{formatVND(t.amount)}</div>
-                 <button type="button" onClick={() => setQrModalTx(t)} className="w-10 h-10 p-0 flex items-center justify-center text-[var(--color-foreground)] hover:text-white transition-colors rounded-full shrink-0 relative z-10 border border-[var(--color-border)] hover:bg-[var(--color-accent)] hover:shadow-sm bg-[var(--color-card-solid)] shadow-sm focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none" aria-label={`Xem mã QR thanh toán ${formatVND(t.amount)} cho ${getDisplayName(t.to)}`} title="QR Code"><QrCode size={18} aria-hidden="true"/></button>
-               </div>
-             ))}
+             {transactions.map((t, idx) => {
+                const isPaid = t.status === 'paid';
+                return (
+                  <div 
+                    key={idx} 
+                    className={`flex flex-col sm:flex-row justify-between items-center gap-4 p-5 rounded-xl border transition-all ${
+                      isPaid 
+                        ? 'bg-emerald-500/5 border-emerald-500/20 opacity-75' 
+                        : 'bg-[var(--color-card-solid)] border-[var(--color-border)] hover:border-[var(--color-border)] hover:-translate-y-1 hover:shadow-sm'
+                    }`}
+                  >
+                    <div className="flex-1 flex flex-wrap items-center justify-center sm:justify-start gap-x-4 w-full text-base relative z-10">
+                      <span className="font-bold text-[var(--color-muted-foreground)]">{getDisplayName(t.from)}</span>
+                      <div className="flex items-center gap-2 text-[var(--color-quaternary)] px-2" aria-hidden="true">
+                        <div className="h-[2px] w-4 bg-[var(--color-quaternary)]"></div>
+                        <ArrowRight size={16} strokeWidth={4}/>
+                        <div className="h-[2px] w-4 bg-[var(--color-quaternary)]"></div>
+                      </div>
+                      <span className="font-bold text-[var(--color-foreground)]">{getDisplayName(t.to)}</span>
+                      
+                      {/* Trạng thái thanh toán */}
+                      {isHistoryView && (
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ml-2 ${
+                          isPaid 
+                            ? 'bg-emerald-100 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-400 border border-emerald-500/20' 
+                            : 'bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-400 border border-amber-500/20'
+                        }`}>
+                          {isPaid ? 'Đã trả nợ' : 'Chờ thanh toán'}
+                        </span>
+                      )}
+                    </div>
+                    <div className="font-medium text-lg bg-[var(--color-accent)] px-4 py-2 rounded-xl text-white relative z-10 shadow-sm border border-[var(--color-border)]">{formatVND(t.amount)}</div>
+                    <button 
+                      type="button" 
+                      onClick={() => setQrModalTx({ ...t, index: idx })} 
+                      className="w-10 h-10 p-0 flex items-center justify-center text-[var(--color-foreground)] hover:text-white transition-colors rounded-full shrink-0 relative z-10 border border-[var(--color-border)] hover:bg-[var(--color-accent)] hover:shadow-sm bg-[var(--color-card-solid)] shadow-sm focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none" 
+                      aria-label={`Xem mã QR thanh toán ${formatVND(t.amount)} cho ${getDisplayName(t.to)}`} 
+                      title="QR Code"
+                    >
+                      <QrCode size={18} aria-hidden="true"/>
+                    </button>
+                  </div>
+                );
+              })}
            </div>
          )}
          </div>
@@ -217,14 +248,23 @@ export default function SettleUpScreen({ roomId, room, members, user, isHistoryV
         )}
 
         {qrModalTx && (
-          <QRModal tx={qrModalTx} onClose={() => setQrModalTx(null)} members={members} getDisplayName={getDisplayName} roomId={roomId} />
+          <QRModal 
+            tx={qrModalTx} 
+            onClose={() => setQrModalTx(null)} 
+            members={members} 
+            getDisplayName={getDisplayName} 
+            roomId={roomId} 
+            billId={historyBill?.id}
+            isHistoryView={isHistoryView}
+            user={user}
+          />
         )}
 
     </div>
   );
 }
 
-function QRModal({ tx, onClose, members, getDisplayName, roomId }: any) {
+function QRModal({ tx, onClose, members, getDisplayName, roomId, billId, isHistoryView, user }: any) {
   const receiver = members.find((m:any) => m.uid === tx.to);
   const infoMissing = !receiver || !receiver.bankId || !receiver.accountNumber;
 
@@ -232,6 +272,7 @@ function QRModal({ tx, onClose, members, getDisplayName, roomId }: any) {
   const [bankId, setBankId] = useState(receiver?.bankId || '');
   const [accNum, setAccNum] = useState(receiver?.accountNumber || '');
   const [isSaving, setIsSaving] = useState(false);
+  const [isConfirming, setIsConfirming] = useState(false);
 
   // Normalize Vietnamese characters for secure VietQR addInfo contents
   const rawInfo = `Tra no - ${getDisplayName(tx.from)} thanh toan`;
@@ -265,6 +306,37 @@ function QRModal({ tx, onClose, members, getDisplayName, roomId }: any) {
       console.error("Lỗi khi lưu thẻ:", e);
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleConfirmPayment = async () => {
+    if (!roomId || !billId || tx.index === undefined) return;
+    setIsConfirming(true);
+    try {
+      const db = (await import('firebase/database')).getDatabase();
+      const ref = (await import('firebase/database')).ref;
+      const update = (await import('firebase/database')).update;
+      
+      const updates: any = {};
+      updates[`rooms/${roomId}/settledBills/${billId}/transactions/${tx.index}/status`] = 'paid';
+      
+      await update(ref(db), updates);
+      
+      // Ghi tin nhắn hệ thống
+      const fromName = getDisplayName(tx.from);
+      const toName = getDisplayName(tx.to);
+      await firebaseService.writeChatMessage(
+        roomId, 
+        user, 
+        `đã xác nhận ${fromName} trả nợ thành công cho ${toName} số tiền ${formatVND(tx.amount)}`, 
+        'system'
+      );
+      
+      onClose();
+    } catch (e) {
+      console.error("Lỗi khi xác nhận thanh toán:", e);
+    } finally {
+      setIsConfirming(false);
     }
   };
 
@@ -358,6 +430,23 @@ function QRModal({ tx, onClose, members, getDisplayName, roomId }: any) {
                 </button>
               </div>
             </>
+         )}
+
+         {isHistoryView && tx.status !== 'paid' && (
+           <button 
+             type="button" 
+             onClick={handleConfirmPayment} 
+             disabled={isConfirming}
+             className="candy-btn w-full mt-6 py-3.5 text-sm font-bold shadow-md bg-emerald-600 hover:bg-emerald-500 text-white focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:outline-none"
+           >
+             {isConfirming ? "Đang xác nhận..." : "Xác Nhận Đã Thanh Toán ✔"}
+           </button>
+         )}
+
+         {tx.status === 'paid' && (
+           <div className="mt-6 px-4 py-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-bold flex items-center gap-2 justify-center w-full">
+             <span>Giao dịch đã hoàn tất thanh toán</span>
+           </div>
          )}
          
          <button type="button" onClick={onClose} className="candy-btn candy-btn-secondary w-full mt-8 py-3 text-sm font-bold bg-[var(--color-card-solid)] focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none">Đóng Cửa Sổ</button>

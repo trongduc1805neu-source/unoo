@@ -253,7 +253,7 @@ export default function ActiveRoom({ user, profile, roomDetails, roomId, onLeave
                  members={allMembersData}
                  user={user}
                  isHistoryView={true}
-                 historyBill={activeBill}
+                 historyBill={roomDetails.settledBills?.[activeBill?.id] || activeBill}
                  onClose={() => setCurrentScreen(historyDetailBackScreen)}
               />
             </motion.div>
