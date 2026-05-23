@@ -1,0 +1,349 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+@import "tailwindcss";
+
+:root {
+  --color-cream: #F4F6FA;
+  --color-white: #FFFFFF;
+  --color-black: #17212B;
+  --color-gray-light: #E4E8ED;
+  --color-gray-mid: #D3D9E0;
+  --color-gray-dark: #707E8C;
+  --color-green: #34C759;
+  --color-green-light: #E3FBE9;
+  --color-green-dark: #1C7B32;
+  --color-orange: #2481CC; /* Telegram Sky Blue */
+  --color-orange-light: #E8F4FC;
+  --color-blue: #1A6CA8;
+  --color-blue-light: #DCECF7;
+  
+  --color-background: var(--color-cream);
+  --color-background-alt: var(--color-white);
+  --color-foreground: var(--color-black);
+  --color-muted: #F1F5F9;
+  --color-muted-foreground: var(--color-gray-dark);
+  --color-accent: var(--color-orange);
+  --color-accent-foreground: var(--color-white);
+  --color-border: var(--color-gray-light);
+  --color-border-hover: var(--color-gray-mid);
+  --color-card: var(--color-white);
+  --color-card-solid: var(--color-white);
+  --color-ring: var(--color-orange);
+  
+  --color-quaternary: var(--color-green);
+  --color-tertiary: var(--color-orange);
+  --color-secondary: var(--color-blue);
+
+  --color-chat-bg: #E7EBF0;
+  --color-chat-bubble-me: #E1F3FC;
+  --color-chat-bubble-other: #FFFFFF;
+  --color-chat-bubble-me-text: var(--color-black);
+  --color-chat-bubble-other-text: var(--color-black);
+  --color-chat-bubble-system: rgba(23, 33, 43, 0.06);
+
+  --shadow-card-default: 0 2px 10px rgba(0, 0, 0, 0.04);
+  --shadow-card-hover: 0 6px 20px rgba(0, 0, 0, 0.08);
+  --shadow-button: 0 2px 8px rgba(36, 129, 204, 0.25);
+  --shadow-glow: 0 0 16px rgba(36, 129, 204, 0.35);
+
+  --background-image-primary-gradient: linear-gradient(135deg, #2481CC 0%, #1A6CA8 100%);
+  --background-image-text-gradient: linear-gradient(135deg, #2481CC 0%, #1A6CA8 100%);
+  --background-image-bg-gradient: linear-gradient(135deg, #e8f4fc 0%, #dcecf7 100%);
+  --background-image-cta-gradient: linear-gradient(135deg, #17212B 0%, #0E1621 100%);
+}
+
+.dark {
+  --color-cream: #0E1621;
+  --color-white: #FFFFFF;
+  --color-black: #0F172A;
+  --color-gray-light: rgba(255, 255, 255, 0.08);
+  --color-gray-mid: rgba(255, 255, 255, 0.15);
+  --color-gray-dark: #707E8C;
+  --color-green: #34C759;
+  --color-green-light: rgba(52, 199, 89, 0.15);
+  --color-green-dark: #1C7B32;
+  --color-orange: #2481CC; /* Telegram Sky Blue */
+  --color-orange-light: rgba(36, 129, 204, 0.15);
+  --color-blue: #1A6CA8;
+  --color-blue-light: rgba(26, 108, 168, 0.15);
+
+  --color-background: #0E1621;
+  --color-background-alt: #17212B;
+  --color-foreground: #FAFAFA;
+  --color-muted: #17212B;
+  --color-muted-foreground: #707E8C;
+  --color-accent: #2481CC;
+  --color-accent-foreground: #FAFAFA;
+  --color-border: rgba(255, 255, 255, 0.08);
+  --color-border-hover: rgba(255, 255, 255, 0.15);
+  --color-card: rgba(23, 33, 43, 0.65);
+  --color-card-solid: #17212B;
+  --color-ring: #2481CC;
+
+  --color-quaternary: var(--color-green);
+  --color-tertiary: var(--color-orange);
+  --color-secondary: var(--color-blue);
+
+  --color-chat-bg: #0E1621;
+  --color-chat-bubble-me: #2B5278;
+  --color-chat-bubble-other: #182533;
+  --color-chat-bubble-me-text: #FAFAFA;
+  --color-chat-bubble-other-text: #FAFAFA;
+  --color-chat-bubble-system: rgba(255, 255, 255, 0.08);
+
+  --shadow-card-default: 0 2px 10px rgba(0, 0, 0, 0.15);
+  --shadow-card-hover: 0 6px 20px rgba(0, 0, 0, 0.25);
+  --shadow-button: 0 2px 8px rgba(36, 129, 204, 0.35);
+  --shadow-glow: 0 0 16px rgba(36, 129, 204, 0.45);
+
+  --background-image-primary-gradient: linear-gradient(135deg, #2481CC 0%, #1A6CA8 100%);
+  --background-image-text-gradient: linear-gradient(135deg, #2481CC 0%, #1A6CA8 100%);
+  --background-image-bg-gradient: linear-gradient(135deg, rgba(36, 129, 204, 0.1) 0%, rgba(26, 108, 168, 0.1) 100%);
+  --background-image-cta-gradient: linear-gradient(135deg, #17212B 0%, #0E1621 100%);
+}
+
+@theme {
+  --color-cream: var(--color-cream);
+  --color-white: var(--color-white);
+  --color-black: var(--color-black);
+  --color-gray-light: var(--color-gray-light);
+  --color-gray-mid: var(--color-gray-mid);
+  --color-gray-dark: var(--color-gray-dark);
+  --color-green: var(--color-green);
+  --color-green-light: var(--color-green-light);
+  --color-green-dark: var(--color-green-dark);
+  --color-orange: var(--color-orange);
+  --color-orange-light: var(--color-orange-light);
+  --color-blue: var(--color-blue);
+  --color-blue-light: var(--color-blue-light);
+  
+  --color-background: var(--color-background);
+  --color-background-alt: var(--color-background-alt);
+  --color-foreground: var(--color-foreground);
+  --color-muted: var(--color-muted);
+  --color-muted-foreground: var(--color-muted-foreground);
+  --color-accent: var(--color-accent);
+  --color-accent-foreground: var(--color-accent-foreground);
+  --color-border: var(--color-border);
+  --color-border-hover: var(--color-border-hover);
+  --color-card: var(--color-card);
+  --color-card-solid: var(--color-card-solid);
+  --color-ring: var(--color-ring);
+  
+  --color-quaternary: var(--color-quaternary);
+  --color-tertiary: var(--color-tertiary);
+  --color-secondary: var(--color-secondary);
+
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-heading: "Inter", system-ui, sans-serif;
+  --font-mono: monospace;
+
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+
+  --shadow-card-default: var(--shadow-card-default);
+  --shadow-card-hover: var(--shadow-card-hover);
+  --shadow-button: var(--shadow-button);
+  --shadow-glow: var(--shadow-glow);
+
+  --background-image-primary-gradient: var(--background-image-primary-gradient);
+  --background-image-text-gradient: var(--background-image-text-gradient);
+  --background-image-bg-gradient: var(--background-image-bg-gradient);
+  --background-image-cta-gradient: var(--background-image-cta-gradient);
+
+  --color-chat-bg: var(--color-chat-bg);
+  --color-chat-bubble-me: var(--color-chat-bubble-me);
+  --color-chat-bubble-other: var(--color-chat-bubble-other);
+  --color-chat-bubble-me-text: var(--color-chat-bubble-me-text);
+  --color-chat-bubble-other-text: var(--color-chat-bubble-other-text);
+  --color-chat-bubble-system: var(--color-chat-bubble-system);
+}
+
+@layer base {
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+  }
+
+  body::after {
+    content: "";
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    opacity: 0.015;
+    pointer-events: none;
+    z-index: 50;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    font-weight: 600;
+  }
+
+  input, button, select, textarea, optgroup {
+    font-family: var(--font-sans) !important;
+  }
+}
+
+@layer components {
+  .glass-card {
+    background: var(--color-card);
+    backdrop-filter: blur(12px);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-card-default);
+    transition: all 0.2s ease-out;
+  }
+
+  .glass-card:hover {
+    box-shadow: var(--shadow-card-hover);
+    border-color: var(--color-border-hover);
+  }
+
+  .candy-btn {
+    background: var(--background-image-primary-gradient);
+    color: var(--color-white);
+    font-weight: 500;
+    font-family: var(--font-sans);
+    border-radius: var(--radius-md);
+    border: none;
+    transition: all 0.2s;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 0 20px;
+    position: relative;
+    letter-spacing: -0.01em;
+    box-shadow: var(--shadow-button);
+  }
+
+  .candy-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  .candy-btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-button), 0 4px 12px rgba(36, 129, 204, 0.2);
+    filter: brightness(1.03);
+  }
+
+  .candy-btn:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+
+  .candy-btn-secondary {
+    background-color: transparent;
+    color: var(--color-foreground);
+    border: 1px solid var(--color-border-hover);
+    box-shadow: none;
+  }
+
+  .candy-btn-secondary:hover:not(:disabled) {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: none;
+    transform: translateY(-1px);
+  }
+
+  .candy-input {
+    background-color: var(--color-card);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    color: var(--color-foreground);
+    min-height: 44px;
+    padding: 0 16px;
+    font-family: var(--font-sans);
+    transition: all 0.2s ease-out;
+    width: 100%;
+  }
+
+  .candy-input::placeholder {
+    color: var(--color-muted-foreground);
+    opacity: 0.6;
+  }
+
+  .candy-input:focus {
+    outline: none;
+    border-color: rgba(36, 129, 204, 0.5);
+    box-shadow: 0 0 0 3px rgba(36, 129, 204, 0.15);
+  }
+
+  ::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+  .telegram-bg {
+    background-color: var(--color-chat-bg);
+    background-image: radial-gradient(var(--color-border) 1px, transparent 0);
+    background-size: 24px 24px;
+  }
+
+  .chat-bubble-me {
+    background-color: var(--color-chat-bubble-me);
+    color: var(--color-chat-bubble-me-text);
+    border-radius: 16px;
+    border-bottom-right-radius: 4px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+  }
+
+  .chat-bubble-other {
+    background-color: var(--color-chat-bubble-other);
+    color: var(--color-chat-bubble-other-text);
+    border-radius: 16px;
+    border-bottom-left-radius: 4px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+  }
+
+  .chat-bubble-system {
+    background-color: var(--color-chat-bubble-system);
+    color: var(--color-muted-foreground);
+    font-size: 11px;
+    font-weight: 500;
+    padding: 4px 12px;
+    border-radius: 12px;
+    display: inline-block;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+  }
+}
+
+@keyframes float-gentle {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(0, -10px); }
+}
+
+.ambient-orb {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(36, 129, 204, 0.05); /* Telegram blue glow */
+  filter: blur(120px);
+  z-index: 0;
+  pointer-events: none;
+  animation: float-gentle 15s ease-in-out infinite;
+}
+
+.bg-\[var\(--color-background\)\] {
+  background-color: var(--color-background) !important;
+}
+
+@keyframes scan {
+  0%, 100% { top: 0%; }
+  50% { top: 100%; }
+}
+
+.animate-scan {
+  animation: scan 3s ease-in-out infinite;
+}
+
+/* Custom SVG Icons from public/icons styling */
+.custom-svg-icon svg {
+  width: 100% !important;
+  height: 100% !important;
+  display: inline-block;
+  vertical-align: middle;
+}

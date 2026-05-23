@@ -1,0 +1,6 @@
+{
+  "name": "Uno - Group Expense Splitter",
+  "description": "Khoản chi tiêu nhóm rõ ràng, quyết toán minh bạch cùng bạn bè.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

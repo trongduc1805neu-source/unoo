@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Google AI Studio App</title>
+    <script>
+      (function() {
+        try {
+          var originalFetch = window.fetch;
+          Object.defineProperty(window, 'fetch', {
+            get: function() { return originalFetch; },
+            set: function(v) { console.warn("Library tried to override window.fetch, setter intercepted safely."); },
+            configurable: true,
+            enumerable: true
+          });
+          Object.defineProperty(self, 'fetch', {
+            get: function() { return originalFetch; },
+            set: function(v) { console.warn("Library tried to override self.fetch, setter intercepted safely."); },
+            configurable: true,
+            enumerable: true
+          });
+        } catch(e) {
+          console.error("Proxying fetch failed:", e);
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+
