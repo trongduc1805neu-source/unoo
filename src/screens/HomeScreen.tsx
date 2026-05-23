@@ -6,6 +6,7 @@ import { Search, EmojiSmile, ImageIcon, Paperclip, Scissors, SendIcon, ChatDots,
 import { Modal } from '../components/ui/Modal';
 import { ConfirmModal } from '../components/ui/ConfirmModal';
 import { motion, AnimatePresence } from 'motion/react';
+import { AppCard, AppButton, AppBadge, AppSectionHeader, AppEmptyState, AppAvatar } from '../components/ui/DesignSystem';
 
 export default function HomeScreen({ roomId, room, members, user, profile, onNavigate, showRightSidebar, setShowRightSidebar, onViewSettlement }: any) {
   const expenses: Expense[] = (Object.values(room.expenses || {}) as Expense[])
@@ -162,71 +163,71 @@ export default function HomeScreen({ roomId, room, members, user, profile, onNav
         <div className="p-4 flex flex-col gap-6">
           
           {/* Action Banners */}
-          <div>
-            <div className="grid grid-cols-2 gap-3 mb-3">
-              <button 
-                type="button"
-                onClick={() => onNavigate(Screen.ADD_EXPENSE)} 
-                className="glass-card p-4 flex flex-col items-center justify-center gap-2 group focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none"
+          <div className="flex flex-col gap-2">
+            <div className="grid grid-cols-2 gap-2">
+              <AppButton
+                variant="secondary"
+                size="md"
+                onClick={() => onNavigate(Screen.ADD_EXPENSE)}
                 aria-label="Thêm chi tiêu mới"
+                className="flex-col h-auto py-4 gap-2 rounded-xl"
               >
-                <div className="w-10 h-10 rounded-full bg-[var(--color-secondary)] border border-[var(--color-border)] flex items-center justify-center text-white shadow-sm group-hover:scale-110 transition-transform">
-                  <Plus size={20} aria-hidden="true" />
+                <div className="w-9 h-9 rounded-full bg-[var(--color-secondary)] flex items-center justify-center text-white shadow-sm">
+                  <Plus size={18} aria-hidden="true" />
                 </div>
-                <span className="text-xs font-bold  text-[var(--color-foreground)] text-center">Thêm Khổ Cực</span>
-              </button>
-              <button 
-                type="button"
+                <span className="text-xs font-bold text-[var(--color-foreground)] text-center leading-tight">Thêm Chi Tiêu</span>
+              </AppButton>
+              <AppButton
+                variant="secondary"
+                size="md"
                 disabled={expenses.length === 0}
-                onClick={() => onNavigate(Screen.SETTLE_UP)} 
-                className="glass-card p-4 flex flex-col items-center justify-center gap-2 group disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none"
-                aria-label="Quyết toán và đòi tiền nhau"
+                onClick={() => onNavigate(Screen.SETTLE_UP)}
+                aria-label="Quyết toán nhóm"
+                className="flex-col h-auto py-4 gap-2 rounded-xl"
               >
-                <div className="w-10 h-10 rounded-full bg-[var(--color-quaternary)] border border-[var(--color-border)] flex items-center justify-center text-[var(--color-foreground)] shadow-sm group-hover:scale-110 transition-transform">
-                  <CheckSquare size={20} aria-hidden="true" />
+                <div className="w-9 h-9 rounded-full bg-[var(--color-quaternary)] flex items-center justify-center text-white shadow-sm">
+                  <CheckSquare size={18} aria-hidden="true" />
                 </div>
-                <span className="text-xs font-bold  text-[var(--color-foreground)] text-center">Đòi Tiền Nhau</span>
-              </button>
+                <span className="text-xs font-bold text-[var(--color-foreground)] text-center leading-tight">Quyết Toán</span>
+              </AppButton>
             </div>
-            <button 
-              type="button"
-              onClick={() => onNavigate(Screen.HISTORY)} 
-              className="w-full candy-btn candy-btn-secondary py-3 text-xs bg-[var(--color-card-solid)] flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none"
+            <AppButton
+              variant="ghost"
+              size="sm"
+              onClick={() => onNavigate(Screen.HISTORY)}
+              className="w-full rounded-xl justify-center gap-2"
             >
-              <Clock size={16} aria-hidden="true" /> Lịch Sử Đòi Nợ
-            </button>
+              <Clock size={15} aria-hidden="true" /> Lịch Sử Thanh Toán
+            </AppButton>
           </div>
 
           {/* Balances */}
-          <div className="glass-card p-4.5 bg-[var(--color-muted)]">
-            <h3 className="font-heading font-bold text-[var(--color-foreground)] text-sm mb-3 flex items-center gap-1.5">
-              <BarChart3 size={16} className="text-[var(--color-accent)]" aria-hidden="true" />
-              Số Dư Hiện Tại
-            </h3>
+          <AppCard variant="muted" className="p-4">
+            <AppSectionHeader
+              icon={<BarChart3 size={15} />}
+              title="Số Dư Hiện Tại"
+              className="mb-3"
+            />
             <div className="flex flex-col gap-2">
-              {members.map((m:any) => {
+              {members.map((m: any) => {
                 const bal = balances[m.uid] || 0;
                 const isPositive = bal > 0.01;
                 const isNegative = bal < -0.01;
-                const badgeColor = isPositive ? 'bg-[var(--color-green-light)] text-[var(--color-green-dark)]' : (isNegative ? 'bg-red-500/10 text-red-400' : 'bg-[var(--color-muted)] text-[var(--color-muted-foreground)]');
-                const badgeText = isPositive ? 'text-[var(--color-green-dark)]' : (isNegative ? 'text-red-400' : 'text-[var(--color-muted-foreground)]');
-                
+                const badgeVariant: 'positive' | 'negative' | 'neutral' = isPositive ? 'positive' : isNegative ? 'negative' : 'neutral';
                 return (
-                  <div key={m.uid} className="flex justify-between items-center p-3 bg-[var(--color-card-solid)] border border-[var(--color-border)] rounded-xl transition-all hover:border-[var(--color-border-hover)]">
+                  <AppCard key={m.uid} variant="default" className="flex justify-between items-center p-3">
                     <div className="flex items-center gap-2.5 min-w-0">
-                      <div className="w-8 h-8 rounded-full bg-[var(--color-orange-light)] text-[var(--color-accent)] font-bold text-xs flex items-center justify-center shrink-0">
-                        {getDisplayName(m.uid).charAt(0).toUpperCase()}
-                      </div>
+                      <AppAvatar name={getDisplayName(m.uid)} size="sm" photoURL={m.isGoogle ? m.photoURL : undefined} />
                       <span className="font-bold text-sm text-[var(--color-foreground)] truncate">{getDisplayName(m.uid)}</span>
                     </div>
-                    <span className={`px-2.5 py-1 rounded-lg font-bold text-xs border ${badgeColor} ${badgeText} border-[var(--color-border)] shrink-0`}>
+                    <AppBadge variant={badgeVariant}>
                       {isPositive ? '+' : ''}{isNegative ? '-' : ''}{formatVND(Math.abs(bal))}
-                    </span>
-                  </div>
+                    </AppBadge>
+                  </AppCard>
                 );
               })}
             </div>
-          </div>
+          </AppCard>
 
           {/* Members */}
           <MembersSection roomId={roomId} members={members} nicknames={nicknames} isOwner={isOwner} user={user} />
@@ -244,21 +245,20 @@ export default function HomeScreen({ roomId, room, members, user, profile, onNav
 
           {/* Recent Expenses */}
           <div className="flex flex-col gap-2">
-            <h3 className="font-heading font-bold text-[var(--color-foreground)] text-sm flex items-center justify-between">
-              <span className="flex items-center gap-1.5">
-                <DollarSign size={16} className="text-[var(--color-accent)]" aria-hidden="true" />
-                Chi Tiêu Gần Đây
-              </span>
-              <span className="text-xs bg-[var(--color-orange-light)] text-[var(--color-accent)] px-2.5 py-0.5 rounded-full border border-[var(--color-border)]">{expenses.length}</span>
-            </h3>
+            <AppSectionHeader
+              icon={<DollarSign size={15} />}
+              title="Chi Tiêu Gần Đây"
+              count={expenses.length}
+            />
             {expenses.length === 0 ? (
-              <div className="p-5 text-center border border-[var(--color-border)] rounded-xl bg-[var(--color-card-solid)]">
-                <span className="text-xs font-bold text-[var(--color-muted-foreground)]">Nhóm chưa có khoản chi tiêu nào.</span>
-              </div>
+              <AppEmptyState
+                title="Chưa có khoản chi tiêu nào"
+                description="Thêm khoản chi đầu tiên cho nhóm."
+              />
             ) : (
-              <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-2">
                 {expenses.slice(0, 5).map(e => (
-                  <div key={e.id} className="p-3.5 flex flex-col gap-2 group relative overflow-hidden bg-[var(--color-card-solid)] border border-[var(--color-border)] rounded-xl hover:border-[var(--color-border-hover)] transition-all">
+                  <AppCard key={e.id} variant="default" className="p-3.5 flex flex-col gap-2 group relative overflow-hidden">
                     {canDeleteExpense(e) && (
                       <div className="absolute right-0 top-0 bottom-0 w-12 bg-red-500/10 border-l border-[var(--color-border)] flex items-center justify-center md:translate-x-full md:group-hover:translate-x-0 transition-transform">
                         <button 
@@ -278,20 +278,21 @@ export default function HomeScreen({ roomId, room, members, user, profile, onNav
                     <div className="flex justify-between items-center text-[10px] font-semibold text-[var(--color-muted-foreground)]">
                       <span className="flex gap-1.5 items-center">
                         <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-accent)]"></span>
-                        Trả: {e.payers ? 'Nhiều người' : getDisplayName(e.payer)}
+                        {e.payers ? 'Nhiều người trả' : `Người trả: ${getDisplayName(e.payer)}`}
                       </span>
                       <span>{new Date(e.createdAt).toLocaleDateString('vi-VN')}</span>
                     </div>
-                  </div>
+                  </AppCard>
                 ))}
                 {expenses.length > 5 && (
-                  <button 
-                    type="button"
-                    onClick={() => onNavigate(Screen.EXPENSES_LIST)} 
-                    className="text-xs font-bold text-[var(--color-accent)] hover:underline text-center mt-2 focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none rounded cursor-pointer"
+                  <AppButton
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onNavigate(Screen.EXPENSES_LIST)}
+                    className="w-full justify-center text-[var(--color-accent)] rounded-xl"
                   >
-                    Xem tất cả {expenses.length} mục…
-                  </button>
+                    Xem tất cả {expenses.length} khoản
+                  </AppButton>
                 )}
               </div>
             )}
@@ -311,22 +312,22 @@ export default function HomeScreen({ roomId, room, members, user, profile, onNav
         isDanger={true}
       />
 
-      <Modal isOpen={isCreatePlanOpen} onClose={() => setIsCreatePlanOpen(false)} title="Hẹn Nhau Đâu Đây">
+      <Modal isOpen={isCreatePlanOpen} onClose={() => setIsCreatePlanOpen(false)} title="Tạo Kế Hoạch Mới">
         <div className="flex flex-col gap-5">
           <div>
-            <label htmlFor="plan-title" className="block text-xs font-bold text-[var(--color-muted-foreground)] mb-2">Làm cái gì đã?</label>
+            <label htmlFor="plan-title" className="block text-xs font-bold text-[var(--color-muted-foreground)] mb-2">Tên kế hoạch</label>
             <input 
               id="plan-title"
               name="planTitle"
               autoComplete="off"
-              placeholder="VD: Nhậu ăn sinh thái ngàn dặm" 
+              placeholder="VD: Cắm trại cuối tuần" 
               value={planTitle} 
               onChange={e=>setPlanTitle(e.target.value)} 
               className="candy-input w-full font-bold focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none"
             />
           </div>
           <div>
-            <label htmlFor="plan-time" className="block text-xs font-bold text-[var(--color-muted-foreground)] mb-2">Chừng Nào? (Tuỳ Chọn)</label>
+            <label htmlFor="plan-time" className="block text-xs font-bold text-[var(--color-muted-foreground)] mb-2">Thời gian (tuỳ chọn)</label>
             <input 
               id="plan-time"
               type="datetime-local"
@@ -337,7 +338,7 @@ export default function HomeScreen({ roomId, room, members, user, profile, onNav
             />
           </div>
           <div>
-            <label htmlFor="plan-location" className="block text-xs font-bold text-[var(--color-muted-foreground)] mb-2">Ở đâu?</label>
+            <label htmlFor="plan-location" className="block text-xs font-bold text-[var(--color-muted-foreground)] mb-2">Địa điểm</label>
             <input 
               id="plan-location"
               name="planLocation"
@@ -362,11 +363,11 @@ export default function HomeScreen({ roomId, room, members, user, profile, onNav
             />
           </div>
           <div>
-            <label htmlFor="plan-note" className="block text-xs font-bold text-[var(--color-muted-foreground)] mb-2">Có gì vui?</label>
+            <label htmlFor="plan-note" className="block text-xs font-bold text-[var(--color-muted-foreground)] mb-2">Ghi chú</label>
             <textarea 
               id="plan-note"
               name="planNote"
-              placeholder="Ghi chú anh em mang theo thứ gì…" 
+              placeholder="Ghi chú thêm cho kế hoạch…" 
               value={planNote} 
               onChange={e=>setPlanNote(e.target.value)} 
               className="candy-input w-full min-h-[80px] py-3 resize-none font-medium focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none"
@@ -377,7 +378,7 @@ export default function HomeScreen({ roomId, room, members, user, profile, onNav
             onClick={handleAddPlan} 
             className="candy-btn w-full mt-2 text-sm focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none cursor-pointer"
           >
-            Hẹn Nhé
+            Tạo Kế Hoạch
           </button>
         </div>
       </Modal>
@@ -397,7 +398,7 @@ function MembersSection({ roomId, members, nicknames, isOwner, user }: any) {
     if (!newMember.trim()) return;
     const current = members.filter((m:any) => !m.isGoogle).map((m:any) => m.name);
     if (current.includes(newMember) || members.some((m:any) => m.name === newMember)) {
-      setErrorMsg("Tên này đã tồn tại trong nhóm rồi nhé!"); 
+      setErrorMsg("Tên thành viên này đã tồn tại trong nhóm."); 
       return;
     }
     await firebaseService.writeCustomMembers(roomId, [...current, newMember]);
@@ -421,60 +422,61 @@ function MembersSection({ roomId, members, nicknames, isOwner, user }: any) {
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="flex justify-between items-center px-1">
-        <h3 className="font-heading font-bold text-[var(--color-foreground)] text-sm flex items-center gap-2">
-           <UserPlus size={16} /> Băng Đảng <span className="text-xs bg-[var(--color-orange-light)] text-[var(--color-accent)] px-2.5 py-0.5 rounded-full border border-[var(--color-border)] ml-1">{members.length}</span>
-        </h3>
-        {isOwner && (
-          <button 
-            type="button"
-            onClick={() => setIsOpenAdd(true)} 
-            className="w-8 h-8 rounded-full bg-[var(--color-card-solid)] border border-[var(--color-border)] flex items-center justify-center text-[var(--color-foreground)] shadow-sm hover:border-[var(--color-border-hover)] focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none transition-all active:scale-95 p-0 cursor-pointer"
-            aria-label="Thêm thành viên khách mới"
-          >
-            <Plus size={16} aria-hidden="true" />
-          </button>
-        )}
-      </div>
+      <AppSectionHeader
+        icon={<UserPlus size={15} />}
+        title="Thành Viên"
+        count={members.length}
+        action={
+          isOwner ? (
+            <AppButton
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsOpenAdd(true)}
+              aria-label="Thêm thành viên khách mới"
+              className="w-8 h-8 p-0 rounded-full"
+            >
+              <Plus size={15} aria-hidden="true" />
+            </AppButton>
+          ) : null
+        }
+      />
       <div className="flex flex-col gap-2 relative z-10 max-h-[300px] overflow-y-auto no-scrollbar pb-2">
-        {members.map((m:any, index: number) => {
-          const bgColors = ['bg-[var(--color-accent)]', 'bg-[var(--color-tertiary)]', 'bg-[var(--color-quaternary)]', 'bg-[var(--color-secondary)]'];
-          const avatarColor = bgColors[index % bgColors.length];
+        {members.map((m: any, index: number) => {
           return (
             <motion.div 
               key={m.uid} 
               initial={{ opacity: 0, y: 12 }} 
               animate={{ opacity: 1, y: 0 }} 
               transition={{ duration: 0.25, delay: Math.min(index * 0.04, 0.3) }}
-              className="flex justify-between items-center gap-3 p-2.5 bg-[var(--color-card-solid)] rounded-xl border border-[var(--color-border)] hover:border-[var(--color-border-hover)] group transition-all"
             >
-              <div className="flex items-center gap-3 min-w-0">
-                <div className={`w-9 h-9 rounded-full overflow-hidden shrink-0 border border-[var(--color-border)] shadow-sm ${avatarColor} flex items-center justify-center`}>
-                  {m.photoURL ? <img src={m.photoURL} alt="Ảnh đại diện thành viên" className="w-full h-full object-cover"/> : <div className="font-heading font-bold text-white text-base leading-none">{m.name.charAt(0).toUpperCase()}</div>}
+              <AppCard variant="default" className="flex justify-between items-center gap-3 p-2.5 group">
+                <div className="flex items-center gap-3 min-w-0">
+                  <AppAvatar name={m.name} size="md" photoURL={m.isGoogle ? m.photoURL : undefined} />
+                  <div className="truncate text-sm font-bold text-[var(--color-foreground)] min-w-0">
+                    <span className="block truncate">{nicknames[m.uid] ? `${nicknames[m.uid]}` : m.name}</span>
+                    {nicknames[m.uid] && <span className="text-[10px] text-[var(--color-muted-foreground)] block font-semibold truncate leading-none mt-0.5">({m.name})</span>}
+                  </div>
                 </div>
-                <div className="truncate text-sm font-bold text-[var(--color-foreground)] min-w-0">
-                  <span className="block truncate">{nicknames[m.uid] ? `${nicknames[m.uid]}` : m.name}</span>
-                  {nicknames[m.uid] && <span className="text-[10px] text-[var(--color-muted-foreground)] block font-semibold truncate leading-none mt-0.5">({m.name})</span>}
+                <div className="flex items-center gap-2 shrink-0">
+                  {!m.isGoogle && <AppBadge variant="neutral">Khách</AppBadge>}
+                  {isOwner && m.uid !== user.uid && (
+                    <AppButton
+                      variant="danger"
+                      size="sm"
+                      onClick={() => setMemberToDelete(m)}
+                      aria-label={`Xóa thành viên ${m.name}`}
+                      className="w-7 h-7 p-0 rounded-full"
+                    >
+                      <Trash2 size={13} aria-hidden="true" />
+                    </AppButton>
+                  )}
                 </div>
-              </div>
-              <div className="flex items-center gap-2 shrink-0">
-                {!m.isGoogle && <span className="text-[9px] font-bold bg-[var(--color-muted)] border border-[var(--color-border)] px-1.5 py-0.5 rounded text-[var(--color-muted-foreground)]">Khách</span>}
-                {isOwner && m.uid !== user.uid && (
-                  <button 
-                    type="button"
-                    onClick={() => setMemberToDelete(m)} 
-                    className="w-7 h-7 rounded-full bg-red-500/10 text-red-400 hover:bg-red-500/20 focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:outline-none flex items-center justify-center transition-all p-0 cursor-pointer"
-                    aria-label={`Xóa thành viên ${m.name}`}
-                  >
-                    <Trash2 size={13} aria-hidden="true" />
-                  </button>
-                )}
-              </div>
+              </AppCard>
             </motion.div>
           )
         })}
       </div>
-      <Modal isOpen={isOpenAdd} onClose={() => { setErrorMsg(''); setIsOpenAdd(false); }} title="Mời Bạn Lượn Cùng">
+      <Modal isOpen={isOpenAdd} onClose={() => { setErrorMsg(''); setIsOpenAdd(false); }} title="Thêm Thành Viên">
          <div className="gap-6 flex flex-col">
             <div>
               <label htmlFor="newmember-name" className="block text-xs font-bold text-[var(--color-muted-foreground)] mb-2">Tên Thành Viên Mới</label>
@@ -494,13 +496,14 @@ function MembersSection({ roomId, members, nicknames, isOwner, user }: any) {
                 {errorMsg}
               </div>
             )}
-            <button 
-              type="button"
+            <AppButton
+              variant="primary"
+              size="md"
               onClick={handleAddCustom} 
-              className="candy-btn w-full mt-2 focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none cursor-pointer"
+              className="w-full mt-2"
             >
-              Duyệt Nhập Đội
-            </button>
+              Thêm Thành Viên
+            </AppButton>
          </div>
       </Modal>
 
@@ -563,7 +566,7 @@ function PlansSection({ roomId, room, members, user, getDisplayName, isOwner, on
     <div className="flex flex-col gap-2 mt-4">
       <div className="flex justify-between items-center px-1">
         <h3 className="font-heading font-bold text-[var(--color-foreground)] text-sm flex items-center gap-2">
-           <MapPin size={16} /> Tới Đâu Rảnh?
+           <MapPin size={16} /> Kế Hoạch Nhóm
         </h3>
         <button 
           type="button"
@@ -614,7 +617,7 @@ function PlansSection({ roomId, room, members, user, getDisplayName, isOwner, on
                   aria-label={`Tham gia kế hoạch ${p.title}`}
                 >
                   <span className="flex items-center gap-1.5">
-                    Tham gia!
+                    Tham gia
                     <ThumbsUp size={12} aria-hidden="true" />
                   </span>
                   <span className={`px-2 py-0.5 rounded-md text-xs border ${myVote ? 'bg-[var(--color-card-solid)]/20 border-white/30 text-white' : 'bg-[var(--color-muted)] border-[var(--color-border)] text-[var(--color-foreground)]'}`}>{voteCount}</span>
@@ -678,7 +681,7 @@ function ChatSection({ roomId, room, user, getDisplayName, onViewSettlement, onN
           <div>
             <h3 className="text-xl font-heading font-bold text-[var(--color-foreground)] mb-2">Chưa có tin nhắn</h3>
             <p className="text-xs text-[var(--color-muted-foreground)] leading-relaxed max-w-xs mx-auto font-medium">
-              Nhóm mới được thành lập! Hãy gửi lời chào mừng để kích hoạt phòng chat và bắt đầu chia sẻ chi tiêu cùng đồng bọn.
+              Nhóm mới được thành lập. Hãy gửi tin nhắn đầu tiên để bắt đầu chia sẻ chi tiêu cùng nhau.
             </p>
           </div>
           <button 
@@ -723,10 +726,10 @@ function ChatSection({ roomId, room, user, getDisplayName, onViewSettlement, onN
                       : 'bg-[var(--color-card-solid)] text-[var(--color-accent)] border border-[var(--color-border)] hover:bg-[var(--color-muted)]'
                   }`}
                 >
-                  {myVote ? `✓ Tham gia (${voteCount})` : `Tham gia (${voteCount})`}
+                  {myVote ? `Tham gia (${voteCount})` : `Tham gia (${voteCount})`}
                 </button>
                 <span className="text-[11px] text-[var(--color-accent)] font-bold">
-                  +{plans.length > 1 ? plans.length - 1 : 0} ghim
+                  {plans.length > 1 ? `+${plans.length - 1} kế hoạch khác` : ''}
                 </span>
               </div>
             );
@@ -954,7 +957,7 @@ function ChatSection({ roomId, room, user, getDisplayName, onViewSettlement, onN
                       <div className="w-7 h-7 rounded-full bg-[var(--color-secondary)] flex items-center justify-center text-white shrink-0">
                         <Plus size={15} aria-hidden="true" />
                       </div>
-                      Thêm Khổ Cực
+                      Thêm Chi Tiêu
                     </button>
                     
                     <button 
@@ -969,7 +972,7 @@ function ChatSection({ roomId, room, user, getDisplayName, onViewSettlement, onN
                       <div className="w-7 h-7 rounded-full bg-[var(--color-quaternary)] flex items-center justify-center text-[var(--color-foreground)] shrink-0">
                         <CheckSquare size={14} aria-hidden="true" />
                       </div>
-                      Đòi Tiền Nhau
+                      Quyết Toán
                     </button>
                     
                     <button 
@@ -983,7 +986,7 @@ function ChatSection({ roomId, room, user, getDisplayName, onViewSettlement, onN
                       <div className="w-7 h-7 rounded-full bg-[var(--color-accent)] flex items-center justify-center text-white shrink-0">
                         <MapPin size={14} aria-hidden="true" />
                       </div>
-                      Tạo Chuyến Đi
+                      Tạo Kế Hoạch
                     </button>
                   </motion.div>
                 </>

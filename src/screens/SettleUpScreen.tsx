@@ -221,7 +221,7 @@ export default function SettleUpScreen({ roomId, room, members, user, isHistoryV
                   <div className="min-w-0">
                     <h4 className="font-bold text-[13px] text-[var(--color-foreground)] truncate">{e.itemName}</h4>
                     <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[10px] text-[var(--color-muted-foreground)] font-semibold mt-1">
-                      <span>Trả: {e.payers ? 'Nhiều người' : getDisplayName(e.payer)}</span>
+                      <span>Người trả: {e.payers ? 'Nhiều người' : getDisplayName(e.payer)}</span>
                       <span>•</span>
                       <span>{new Date(e.createdAt).toLocaleDateString('vi-VN')}</span>
                       <span>•</span>
@@ -242,7 +242,7 @@ export default function SettleUpScreen({ roomId, room, members, user, isHistoryV
         {!isHistoryView && (
           <div className="flex justify-center mt-2 mb-12 px-4 print:hidden">
            <button type="button" onClick={handleSettle} className="candy-btn py-4.5 px-12 text-base w-full font-bold shadow-[0_4px_16px_rgba(36,129,204,0.3)] hover:shadow-[0_6px_22px_rgba(36,129,204,0.45)] group transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 cursor-pointer focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:outline-none">
-             Xác Nhận Quyết Toán ✔
+             Xác Nhận Quyết Toán
            </button>
           </div>
         )}
@@ -397,7 +397,7 @@ function QRModal({ tx, onClose, members, getDisplayName, roomId, billId, isHisto
                   disabled={isSaving || !bankId || !accNum.trim()} 
                   className="candy-btn text-xs flex-1 min-h-[40px] items-center justify-center p-0 focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none"
                 >
-                  {isSaving ? "Đang lưu..." : "Lưu & Hiện QR"}
+                  {isSaving ? "Đang lưu..." : "Lưu và hiện QR"}
                 </button>
                 {!infoMissing && (
                   <button 
@@ -426,7 +426,7 @@ function QRModal({ tx, onClose, members, getDisplayName, roomId, billId, isHisto
                   onClick={() => setIsEditing(true)} 
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-[var(--color-accent)] hover:underline focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none rounded px-2 py-1"
                 >
-                  Sửa đổi 🛠️
+                  Sửa đổi
                 </button>
               </div>
             </>
@@ -439,7 +439,7 @@ function QRModal({ tx, onClose, members, getDisplayName, roomId, billId, isHisto
              disabled={isConfirming}
              className="candy-btn w-full mt-6 py-3.5 text-sm font-bold shadow-md bg-emerald-600 hover:bg-emerald-500 text-white focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:outline-none"
            >
-             {isConfirming ? "Đang xác nhận..." : "Xác Nhận Đã Thanh Toán ✔"}
+             {isConfirming ? "Đang xác nhận..." : "Xác Nhận Đã Thanh Toán"}
            </button>
          )}
 

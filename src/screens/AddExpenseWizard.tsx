@@ -28,20 +28,20 @@ export default function AddExpenseWizard({ roomId, members, user, onClose }: any
   const handleNext = () => {
     setError('');
     if (step === 1) {
-      if (!itemName) return setError("Hôm nãy chúng ta tiêu gì nè?");
-      if (amount <= 0) return setError("Số tiền chí ít là lớn hơn KHÔNG (0)");
+      if (!itemName) return setError("Vui lòng nhập tên khoản chi tiêu.");
+      if (amount <= 0) return setError("Số tiền phải lớn hơn 0.");
       if (isMultiPayer) {
         const sum = Object.values(multiPayers).reduce<number>((a, b) => a + (Number(b) || 0), 0);
-        if (sum !== amount) return setError(`Hửm? Tổng số tiền ghi (${formatVND(sum)}) chưa chuẩn phần trả (${formatVND(amount)})!`);
+        if (sum !== amount) return setError(`Tổng số tiền các người trả (${formatVND(sum)}) không khớp với tổng (${formatVND(amount)}).`);
       }
     }
     if (step === 2) {
-      if (participants.length === 0) return setError("Ủa? Ai tham gia khoản này rứa? Chọn bét 1 đi");
+      if (participants.length === 0) return setError("Vui lòng chọn ít nhất 1 người tham gia.");
     }
     if (step === 3) {
       if (splitMethod === SplitMethod.MANUALLY) {
         const sum = Object.values(manualSplits).reduce<number>((a, b) => a + (Number(b) || 0), 0);
-        if (Math.abs(sum - amount) > 5) return setError(`Hửm? Tổng số chia phần này (${formatVND(sum)}) không khớp với tổng tiền nhen!`);
+        if (Math.abs(sum - amount) > 5) return setError(`Tổng số tiền chia (${formatVND(sum)}) không khớp với tổng tiền (${formatVND(amount)}).`);
       }
     }
     if (step < 4) setStep(s => s + 1);
@@ -134,7 +134,7 @@ export default function AddExpenseWizard({ roomId, members, user, onClose }: any
               className="flex flex-col gap-6"
             >
               <div>
-                <label htmlFor="expense-item-name" className="block text-xs font-bold text-[var(--color-muted-foreground)] mb-2">Khoản này là gì?</label>
+                <label htmlFor="expense-item-name" className="block text-xs font-bold text-[var(--color-muted-foreground)] mb-2">Tên khoản chi tiêu</label>
                 <input 
                   id="expense-item-name"
                   name="itemName"
@@ -148,7 +148,7 @@ export default function AddExpenseWizard({ roomId, members, user, onClose }: any
                 />
               </div>
               <div>
-                <label htmlFor="expense-amount" className="block text-xs font-bold text-[var(--color-muted-foreground)] mb-2">Bao nhiêu tiền? (VND)</label>
+                <label htmlFor="expense-amount" className="block text-xs font-bold text-[var(--color-muted-foreground)] mb-2">Số tiền (VND)</label>
                 <input 
                   id="expense-amount"
                   name="amount"
@@ -193,7 +193,7 @@ export default function AddExpenseWizard({ roomId, members, user, onClose }: any
                       </div>
                     ))}
                     <div className="text-right text-xs font-bold text-[var(--color-muted-foreground)] mt-2 pt-3 border-t-2 border-[var(--color-border)]">
-                       Lệch Trả So Với Nợ: <span className="text-[var(--color-accent)]">{formatVND(Object.values(multiPayers).reduce<number>((a,b)=>a+(Number(b)||0), 0))}</span> / {formatVND(amount)}
+                       Tổng đã nhập: <span className="text-[var(--color-accent)]">{formatVND(Object.values(multiPayers).reduce<number>((a,b)=>a+(Number(b)||0), 0))}</span> / {formatVND(amount)}
                     </div>
                   </div>
                 )}
@@ -211,7 +211,7 @@ export default function AddExpenseWizard({ roomId, members, user, onClose }: any
               className="flex flex-col gap-6"
             >
                <div className="flex justify-between items-center bg-[var(--color-quaternary)] p-4 rounded-2xl border border-[var(--color-border)] shadow-sm">
-                  <span className="block text-sm font-bold text-[var(--color-foreground)]">Ai dính vào món nợ này?</span>
+                  <span className="block text-sm font-bold text-[var(--color-foreground)]">Chọn người tham gia khoản này</span>
                   <div className="flex gap-2">
                     <button type="button" onClick={() => setParticipants(members.map((m:any)=>m.uid))} className="candy-btn candy-btn-secondary py-1 px-3 min-h-[32px] text-xs bg-[var(--color-card-solid)] focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none transition-colors">Mặc định</button>
                     <button type="button" onClick={() => setParticipants([])} className="candy-btn py-1 px-3 min-h-[32px] text-xs bg-[var(--color-muted)] text-[var(--color-foreground)] hover:bg-[var(--color-border)] shadow-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none transition-colors">Khỏi</button>
@@ -246,7 +246,7 @@ export default function AddExpenseWizard({ roomId, members, user, onClose }: any
               transition={{ duration: 0.18 }}
               className="flex flex-col gap-6"
             >
-              <span className="block text-xs font-bold text-[var(--color-muted-foreground)] mb-2">Chia Thế Nào Đây?</span>
+              <span className="block text-xs font-bold text-[var(--color-muted-foreground)] mb-2">Cách chia tiền</span>
               <div className="flex gap-4">
                 <button 
                    type="button"
@@ -265,7 +265,7 @@ export default function AddExpenseWizard({ roomId, members, user, onClose }: any
               {splitMethod === SplitMethod.EVENLY && (
                 <div className="text-center p-8 bg-[var(--color-muted)] border border-[var(--color-border)] rounded-2xl relative overflow-hidden mt-4">
                   <p className="text-3xl font-medium text-[var(--color-accent)] relative z-10">{formatVND(amount / participants.length)}</p>
-                  <p className="text-xs font-bold text-[var(--color-muted-foreground)] mt-2 relative z-10">Hụt Đồng Nào Chia Người Nấy</p>
+                  <p className="text-xs font-bold text-[var(--color-muted-foreground)] mt-2 relative z-10">Mỗi người chịu phần bằng nhau</p>
                 </div>
               )}
 
@@ -307,19 +307,19 @@ export default function AddExpenseWizard({ roomId, members, user, onClose }: any
                <div className="flex-1 p-6 flex flex-col gap-5 border border-[var(--color-border)] z-10 relative bg-[var(--color-card-solid)] overflow-hidden rounded-2xl shadow-sm">
                   <div className="absolute -top-4 -right-4 text-sky-200 rotate-12 opacity-50"><Sparkles size={100} aria-hidden="true"/></div>
                   <h3 className="text-xl font-heading font-medium mb-2 text-[var(--color-foreground)] drop-shadow-sm flex items-center gap-2">
-                     Được Chưa Bạn Gì Ơi? <CheckLg size={20} className="text-[var(--color-accent)]" aria-hidden="true"/>
+                     Xác nhận thông tin <CheckLg size={20} className="text-[var(--color-accent)]" aria-hidden="true"/>
                   </h3>
                   
                   <div className="flex flex-col border-b-2 border-sky-100 pb-3 relative z-10">
-                    <span className="text-[10px] font-bold text-[var(--color-secondary)] pb-1">Đang Báo Khoản:</span>
+                    <span className="text-[10px] font-bold text-[var(--color-secondary)] pb-1">Tên khoản chi:</span>
                     <span className="font-heading font-medium text-xl text-[var(--color-foreground)]">{itemName}</span>
                   </div>
                   <div className="flex flex-col border-b-2 border-sky-100 pb-3 relative z-10">
-                    <span className="text-[10px] font-bold text-[var(--color-secondary)] pb-1">Tính Tổng Ra Kìa:</span>
+                    <span className="text-[10px] font-bold text-[var(--color-secondary)] pb-1">Tổng số tiền:</span>
                     <span className="text-3xl text-[var(--color-accent)] font-medium">{formatVND(amount)}</span>
                   </div>
                   <div className="flex flex-col gap-2 border-b-2 border-sky-100 pb-3 relative z-10">
-                    <span className="text-[10px] font-bold text-[var(--color-secondary)]">Trừ Người Này Này:</span>
+                    <span className="text-[10px] font-bold text-[var(--color-secondary)]">Người trả:</span>
                     {!isMultiPayer ? <span className="font-bold text-sm text-[var(--color-foreground)]">{members.find((m:any) => m.uid === singlePayer)?.name}</span> : 
                       Object.entries(multiPayers).map(([u, a]) => Number(a) > 0 ? (
                         <div key={u} className="flex justify-between items-center text-sm font-bold"><span className="truncate max-w-[60%] text-[var(--color-foreground)]">• {members.find((m:any)=>m.uid===u)?.name}</span><span className="text-[var(--color-muted-foreground)]">{formatVND(Number(a))}</span></div>
@@ -327,7 +327,7 @@ export default function AddExpenseWizard({ roomId, members, user, onClose }: any
                     }
                   </div>
                   <div className="flex flex-col gap-2 relative z-10">
-                    <span className="text-[10px] font-bold text-[var(--color-secondary)]">Vào Người Những Ai Rứa:</span>
+                    <span className="text-[10px] font-bold text-[var(--color-secondary)]">Người tham gia:</span>
                     {participants.map(uid => {
                       const m = members.find((x:any)=>x.uid===uid);
                       let partAmount = 0;
@@ -345,11 +345,11 @@ export default function AddExpenseWizard({ roomId, members, user, onClose }: any
       </div>
 
       <div className="border-t border-[var(--color-border)] p-4 flex justify-between z-10 relative bg-[var(--color-card-solid)]">
-        <button type="button" onClick={handlePrev} className="candy-btn candy-btn-secondary px-6 text-sm focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none flex items-center"><ArrowLeft size={16} className="mr-1.5" aria-hidden="true" /> {step===1 ? 'Bỏ' : 'Trở về'}</button>
+        <button type="button" onClick={handlePrev} className="candy-btn candy-btn-secondary px-6 text-sm focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none flex items-center"><ArrowLeft size={16} className="mr-1.5" aria-hidden="true" /> {step===1 ? 'Hủy' : 'Quay lại'}</button>
         {step < 4 ? (
-          <button type="button" onClick={handleNext} className="candy-btn px-8 text-sm flex gap-1.5 items-center focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none">Cứ Thế Nhe <ArrowRight size={16} aria-hidden="true" /></button>
+          <button type="button" onClick={handleNext} className="candy-btn px-8 text-sm flex gap-1.5 items-center focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none">Tiếp theo <ArrowRight size={16} aria-hidden="true" /></button>
         ) : (
-          <button type="button" onClick={handleFinish} className="candy-btn px-8 text-sm flex gap-1.5 items-center font-bold focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none">Thêm Ngay! <CheckLg size={16} aria-hidden="true" /></button>
+          <button type="button" onClick={handleFinish} className="candy-btn px-8 text-sm flex gap-1.5 items-center font-bold focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none">Xác nhận <CheckLg size={16} aria-hidden="true" /></button>
         )}
       </div>
     </div>

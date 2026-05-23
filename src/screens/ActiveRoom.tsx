@@ -110,7 +110,7 @@ export default function ActiveRoom({ user, profile, roomDetails, roomId, onLeave
                   ? 'bg-[var(--color-accent)] text-white shadow-sm' 
                   : 'bg-[var(--color-muted)] text-[var(--color-muted-foreground)] hover:bg-[var(--color-accent)]/10 hover:text-[var(--color-accent)]'
               }`}
-              title="Thông tin & tùy chọn nhóm"
+              title="Thông tin và tùy chọn nhóm"
             >
               <ExclamationCircle size={18} aria-hidden="true" />
               {requestsCount > 0 && isOwner && (
@@ -350,9 +350,9 @@ function RoomApprovalsModal({ isOpen, onClose, roomId, requests }: any) {
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Tiếng Gõ Cửa (Yêu Cầu)">
+    <Modal isOpen={isOpen} onClose={onClose} title="Yêu Cầu Tham Gia Nhóm">
       {reqList.length === 0 ? (
-        <p className="text-center font-bold  text-[var(--color-muted-foreground)] p-8 bg-[var(--color-muted)] border  border-[var(--color-border)] rounded-xl">Chưa có ai gõ cửa ngoài kia.</p>
+        <p className="text-center font-bold  text-[var(--color-muted-foreground)] p-8 bg-[var(--color-muted)] border  border-[var(--color-border)] rounded-xl">Chưa có yêu cầu tham gia nào.</p>
       ) : (
         <div className="flex flex-col gap-4">
           {reqList.map(([uid, data]: any) => (
@@ -372,7 +372,7 @@ function RoomApprovalsModal({ isOpen, onClose, roomId, requests }: any) {
                   onClick={() => handleApprove(uid, data)} 
                   className="candy-btn flex-1 text-xs px-4 min-h-[36px] focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none"
                 >
-                  Duyệt Vào
+                  Duyệt
                 </button>
                 <button 
                   type="button"

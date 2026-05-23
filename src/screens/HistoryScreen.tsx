@@ -78,7 +78,7 @@ export default function HistoryScreen({ roomId, room, isOwner, onViewBill, onClo
         onClose={() => setShowClearConfirm(false)}
         onConfirm={handleClearData}
         title="Cảnh báo nguy hiểm"
-        message="Hành động này sẽ TÌA SẠCH toàn bộ lịch sử thanh toán. Bạn có chắc chắn muốn xóa không?"
+        message="Hành động này sẽ xóa toàn bộ lịch sử thanh toán. Bạn có chắc chắn muốn xóa không?"
         confirmText="Xóa Sạch"
         isDanger={true}
       />
